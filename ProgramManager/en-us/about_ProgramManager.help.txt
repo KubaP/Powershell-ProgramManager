@@ -1,0 +1,11 @@
+﻿TOPIC
+	about_ProgramManager
+	
+SHORT DESCRIPTION
+	Explains how to use the ProgramManager powershell module
+	
+LONG DESCRIPTION
+	<Insert Content here>
+
+KEYWORDS
+	ProgramManager
