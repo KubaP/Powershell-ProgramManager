@@ -1,5 +1,5 @@
 ﻿# Guidance
-
+ 
 If you don't care to deal with the details, this is what you need to do to get started seeing results:
 
  - Add the functions you want to publish to `/functions/`
