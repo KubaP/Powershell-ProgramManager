@@ -40,7 +40,11 @@
 	# FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
 	
 	# Functions to export from this module
-	FunctionsToExport = 'Add-PMProgram'
+	FunctionsToExport = @(
+		'Add-PMProgram',
+		'Import-Data',
+		'Export-Data'
+	)
 	
 	# Cmdlets to export from this module
 	CmdletsToExport = ''

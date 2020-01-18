@@ -44,11 +44,7 @@ Describe "Verifying integrity of module files" {
 			It "[$name] Should have UTF8 encoding with Byte Order Mark" {
 				Get-FileEncoding -Path $file.FullName | Should -Be 'UTF8 BOM'
 			}
-			
-			It "[$name] Should have no trailing space" {
-				($file | Select-String "\s$" | Where-Object { $_.Line.Trim().Length -gt 0}).LineNumber | Should -BeNullOrEmpty
-			}
-			
+						
 			$tokens = $null
 			$parseErrors = $null
 			$ast = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
