@@ -2,8 +2,16 @@
 	<#
 	.SYNOPSIS
 		Imports data from a specified format.
+		
 	.DESCRIPTION
 		Imports data from a specified format.
+		
+	.PARAMETER Path
+		The path of the file to import data from.
+		
+	.PARAMETER Type
+		The type of file to import.
+		
 	.EXAMPLE
 		PS C:\> Import-Data -Path "$env:appdata\data.xml" -Type "clixml"
 		
