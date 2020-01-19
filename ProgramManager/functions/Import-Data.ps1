@@ -1,4 +1,15 @@
 ﻿function Import-Data {
+	<#
+	.SYNOPSIS
+		Imports data from a specified format.
+	.DESCRIPTION
+		Imports data from a specified format.
+	.EXAMPLE
+		PS C:\> Import-Data -Path "$env:appdata\data.xml" -Type "clixml"
+		
+		Imports data from a clixml (serialized object) file.
+	#>
+	
 	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory = $true, Position = 0)]

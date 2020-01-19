@@ -22,7 +22,7 @@ function Get-FileEncoding {
 	)
 	
 	if ($PSVersionTable.PSVersion.Major -lt 6) {
-		[byte[]]$byte = get-content -Encoding byte -ReadCount 4 -TotalCount 4 -Path $Path
+		[byte[]]$byte = Get-Content -Encoding byte -ReadCount 4 -TotalCount 4 -Path $Path
 	}else {
 		[byte[]]$byte = Get-Content -AsByteStream -ReadCount 4 -TotalCount 4 -Path $Path
 	}
@@ -73,9 +73,6 @@ Describe "Verifying integrity of module files" {
 				Get-FileEncoding -Path $file.FullName | Should -Be 'UTF8 BOM'
 			}
 			
-			It "[$name] Should have no trailing space" {
-				($file | Select-String "\s$" | Where-Object { $_.Line.Trim().Length -gt 0 } | Measure-Object).Count | Should -Be 0
-			}
 		}
 	}
 }

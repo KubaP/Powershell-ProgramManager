@@ -1,0 +1,3 @@
+﻿msiexec /i <path> /qb /l*v <log> <params>
+    msiexec parameters
+        blender: INSTALL_PREFIX_1="<Path>"

@@ -1,24 +1,72 @@
 ﻿function Add-PMProgram {
-	[CmdletBinding()]
+	<#
+	.SYNOPSIS
+		Adds a program to the ProgramManager database.
+		
+	.DESCRIPTION
+		Adds a program to the ProgramManager database for future installation.
+		Accepts the following:
+		- msi/exe installer (local file or url download)
+		- zip binary
+		- chocolatey package
+		
+	.PARAMETER Name
+		The name of the program to add to the database.
+		
+	.PARAMETER InstallerPath
+		The path which points to the installer package.
+		
+	.PARAMETER Url
+		The url which points to a direct download link for a package.
+		
+	.PARAMETER PackageName
+		The name of a chocolatey package.
+		
+	.PARAMETER InstallDirectory
+		The directory into which to extract the contents of a zip package (manual install).
+		
+	.PARAMETER Note
+		A short note/description to explain what the package entry is.
+		
+	.EXAMPLE
+		PS C:\> Add-PMProgram -Name "chrome" -InstallerPath "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi package"
+		
+		Adds the program to the database with the specified name and short note.
+		
+	.NOTES
+		There is no need to specify between exe or msi pacakges. The module automatically detects that.
+	#>	
+	
+	[CmdletBinding(DefaultParameterSetName = "LocalInstaller")]
 	Param (
-		[Parameter(Mandatory = $true, Position = 0)]
+		[Parameter(ParameterSetName = "LocalInstaller", Mandatory = $true, Position = 0)]
+		[Parameter(ParameterSetName = "UrlInstaller", Mandatory = $true, Position = 0)]
+		[Parameter(ParameterSetName = "Chocolatey", Mandatory = $true, Position = 0)]
+		[Parameter(ParameterSetName = "Zip", Mandatory = $true, Position = 0)]
 		[string]
 		$Name,
 		
-		[Parameter(Mandatory = $true, Position = 1)]
-		[ValidateSet("exe","msi","chocolatey","zip")]
-		[string]
-		$ProgramType,
-		
-		[Parameter(Mandatory = $true, Position = 2)]
+		[Parameter(ParameterSetName = "LocalInstaller", Mandatory = $true, Position = 1)]
 		[string]
 		$InstallerPath,
 		
-		[Parameter(Mandatory = $true, Position = 2)]
+		[Parameter(ParameterSetName = "UrlInstaller", Mandatory = $true, Position = 1)]
+		[Parameter(ParameterSetName = "Zip", Mandatory = $true, Position = 1)]
+		[string]
+		$Url,
+		
+		[Parameter(ParameterSetName = "Chocolatey", Mandatory = $true, Position = 1)]
+		[string]
+		$PackageName,
+		
+		[Parameter(ParameterSetName = "Zip", Mandatory = $true, Position = 2)]
 		[string]
 		$InstallDirectory,
-		
-		[Parameter()]
+				
+		[Parameter(ParameterSetName = "LocalInstaller")]
+		[Parameter(ParameterSetName = "UrlInstaller")]
+		[Parameter(ParameterSetName = "Chocolatey")]
+		[Parameter(ParameterSetName = "Zip")]
 		[string]
 		$Note
 	)
@@ -67,10 +115,9 @@
 	$program | Add-Member -Type NoteProperty -Name "Name" -Value $Name
 	$program | Add-Member -Type NoteProperty -Name "ProgramType" -Value $ProgramType
 	$program | Add-Member -Type NoteProperty -Name "InstallerPath" -Value $InstallerPath
-	$program | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 	
 	# Add optional properties if passed in
-	if ($Note -ne "") {
+	if ([System.String]::IsNullOrWhiteSpace($Note)) {
 		$program | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
 	}
 		
