@@ -152,7 +152,7 @@
 			break
 		}
 		
-		# Get the details of the executable and move it to the central folder
+		# Get the details of the executable and move it to the package store
 		$executable = Get-Item -Path $PackageLocation
 		Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($executable.Name)"
 		
@@ -183,10 +183,16 @@
 			break
 		}
 		
-		if ((Get-Item -Path $PackageLocation) -eq [System.IO.DirectoryInfo]) {
+		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
 			
-			# This is a folder so no further operations necessary before moving
-			$folder = $PackageLocation
+			# This is a folder so can be moved straight to the package store
+			$folder = Get-Item -Path $PackageLocation
+			Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($folder.Name)"
+			
+			# Add property for the package name
+			$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $folder.Name
+			
+			Remove-Item -Path "$env:USERPROFILE\ProgramManager\temp" -Recurse -Force
 			
 		}else {
 			
@@ -194,35 +200,48 @@
 			$file = Get-Item -Path $PackageLocation
 			
 			# Check if the file has an 'archive' attribute
-			if ($file.Mode.Contains("a")) {
+			if ($file.Extension -eq ".zip" -or $file.Extension -eq ".tar") {
 				
 				# Extract archive to parent location
 				Expand-Archive -Path $PackageLocation -DestinationPath "$env:USERPROFILE\ProgramManager\temp"
 				
+				# Set the current directory to the extracted-archive location, initialising for the do-loop
 				$currentDir = "$env:USERPROFILE\ProgramManager\temp"
-					
+				
+				# Recursively look into the folder heirarchy until there is no more folders containing a single folder
+				# i.e. stops having folder1 -> folder2 -> folder3 -> contents
 				do {
-										
-					$children = Get-ChildItem -Path $currentDir
-					#! 	WTFFF
-					if ($children[0] -eq [System.IO.DirectoryInfo]) {"shahaa"}
 					
-					if ($children.Count -eq 1 -and $children[0] -eq [System.IO.DirectoryInfo]) {
+					# Get all children within the current folder
+					$children = Get-ChildItem -Path $currentDir
+					
+					# If there is only a single child and its a folder, move down the tree
+					# Otherwise move the item to the package store
+					if ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true) {
 						$currentDir = $children.FullName
 					}else {
-						Move-Item -Path $currentDir -Destination "$env:USERPROFILE\ProgramManager\final"
+						Move-Item -Path $currentDir -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)"
 					}
 					
-				} while (($children.Count -eq 1) -and ($children[0] -eq [System.IO.DirectoryInfo]))
+				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
+				
+				# Add property for the package name
+				$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $file.BaseName	
+										
+			}elseif ($file.Extension -eq ".exe") {
+				
+				# This is a portable package with only a single exe file				
+				New-Item -Path "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)" -ItemType Directory			
+				Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)\$($file.Name)"
+				
+				# Add property for the package name
+				$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $file.BaseName				
 				
 			}
-		}
+			
+		}		
 		
-		# Move the pacakge folder to the central folder
-		Move-Item -Path $folder -Destination "$env:USERPROFILE\ProgramManager\packages\$folder"
-		
-		# Add necessary properties
-		$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $folder.Name		
+		# Add necessary properties	
 		$program | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		
 	}elseif ($ChocolateyPackage -eq $true) {
