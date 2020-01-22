@@ -99,53 +99,56 @@
 		$Note
 	)
 	
+	$dataPath = "$env:USERPROFILE\ProgramManager"
+	
 	# Create list of all PMProgram objects
-	$programList = [System.Collections.Generic.List[psobject]]@()
+	$packageList = [System.Collections.Generic.List[psobject]]@()
 	
 	# Check if the xml database already exists
-	if ((Test-Path -Path "$env:USERPROFILE\ProgramManager\programDatabase.xml") `
-			-eq $true) {
+	if ((Test-Path -Path "$dataPath\packageDatabase.xml") -eq $true) {
+		
 		# The xml database exists
 		# Load all existing PMPrograms into a list
-		$xmlData = Import-Data -Path "$env:USERPROFILE\ProgramManager\programDatabase.xml" `
-			-Type "Clixml"
+		$xmlData = Import-Data -Path "$dataPath\packageDatabase.xml" -Type "Clixml"
 		
 		# Iterate through all imported objects
 		foreach ($obj in $xmlData) {
 			# Only operate on PMProgram objects
-			if ($obj.psobject.TypeNames[0] -eq "Deserialized.ProgramManager.Program") {
+			if ($obj.psobject.TypeNames[0] -eq "Deserialized.ProgramManager.Package") {
 				# Create new PMProgram objects
-				$existingProgram = New-Object -TypeName psobject 
-				$existingProgram.PSObject.TypeNames.Insert(0, "ProgramManager.Program")
+				$existingPackage = New-Object -TypeName psobject 
+				$existingPackage.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
 				
 				# Copy the properties from the Deserialized object into the new one
 				foreach ($property in $obj.psobject.Properties) {
-					$existingProgram | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
+					$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
 				}
 				
-				$programList.Add($existingProgram)
+				$packageList.Add($existingPackage)
+				
 			}
 		}
 		
 		# Check if name is already taken
-		$program = $programList | Where-Object { $_.Name -eq $Name }
-		if ($null -ne $program) {
-			"There already exists a program called: $Name" | Write-Error
+		$package = $packageList | Where-Object { $_.Name -eq $Name }
+		if ($null -ne $package) {
+			"There already exists a package called: $Name" | Write-Error
 			break
 		}
+		
 	}
 		
-	# Create PMProgram object	
-	$program = New-Object -TypeName psobject 
-	$program.PSObject.TypeNames.Insert(0, "ProgramManager.Program")
+	# Create PMpackage object	
+	$package = New-Object -TypeName psobject 
+	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
 	
 	# Add compulsary properties
-	$program | Add-Member -Type NoteProperty -Name "Name" -Value $Name
-	$program | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
-	
+	$package | Add-Member -Type NoteProperty -Name "Name" -Value $Name
+	$package | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
+	$package | Add-Member -Type NoteProperty -Name "IsInstalled" -Value $false
 	
 	if ($LocalPackage -eq $true) {	
-			
+		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
 			"There is no executable located at the path: $PackageLocation" | Write-Error
@@ -154,25 +157,25 @@
 		
 		# Get the details of the executable and move it to the package store
 		$executable = Get-Item -Path $PackageLocation
-		Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($executable.Name)"
+		Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name\$($executable.Name)"
 		
 		# Add executable properties
-		$program | Add-Member -Type NoteProperty -Name "ExecutableName" -Value $executable.Name
-		$program | Add-Member -Type NoteProperty -Name "ExecutableType" -Value $executable.Extension
+		$package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value $executable.Name
+		$package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value $executable.Extension
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
-			$program | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
+			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
 	}elseif ($UrlPackage -eq $true) {	
 		
 		# Add url property	
-		$program | Add-Member -Type NoteProperty -Name "Url" -Value $PackageLocation
+		$package | Add-Member -Type NoteProperty -Name "Url" -Value $PackageLocation
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory)) {
-			$program | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
+			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
 	}elseif ($PortablePackage -eq $true) {
@@ -187,12 +190,9 @@
 			
 			# This is a folder so can be moved straight to the package store
 			$folder = Get-Item -Path $PackageLocation
-			Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($folder.Name)"
-			
-			# Add property for the package name
-			$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $folder.Name
-			
-			Remove-Item -Path "$env:USERPROFILE\ProgramManager\temp" -Recurse -Force
+			Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name"
+						
+			Remove-Item -Path "$dataPath\temp" -Recurse -Force
 			
 		}else {
 			
@@ -203,10 +203,10 @@
 			if ($file.Extension -eq ".zip" -or $file.Extension -eq ".tar") {
 				
 				# Extract archive to parent location
-				Expand-Archive -Path $PackageLocation -DestinationPath "$env:USERPROFILE\ProgramManager\temp"
+				Expand-Archive -Path $PackageLocation -DestinationPath "$dataPath\temp"
 				
 				# Set the current directory to the extracted-archive location, initialising for the do-loop
-				$currentDir = "$env:USERPROFILE\ProgramManager\temp"
+				$currentDir = "$dataPath\temp"
 				
 				# Recursively look into the folder heirarchy until there is no more folders containing a single folder
 				# i.e. stops having folder1 -> folder2 -> folder3 -> contents
@@ -220,48 +220,41 @@
 					if ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true) {
 						$currentDir = $children.FullName
 					}else {
-						Move-Item -Path $currentDir -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)"
+						Move-Item -Path $currentDir -Destination "$dataPath\packages\$Name"
 					}
 					
 				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
-				
-				# Add property for the package name
-				$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $file.BaseName	
-										
+														
 			}elseif ($file.Extension -eq ".exe") {
 				
 				# This is a portable package with only a single exe file				
-				New-Item -Path "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)" -ItemType Directory			
-				Move-Item -Path $PackageLocation -Destination "$env:USERPROFILE\ProgramManager\packages\$Name-$($file.BaseName)\$($file.Name)"
-				
-				# Add property for the package name
-				$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $file.BaseName				
+				New-Item -Path "$dataPath\packages\$Name-$($file.BaseName)" -ItemType Directory			
+				Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name\$($file.Name)"
 				
 			}
 			
 		}		
 		
 		# Add necessary properties	
-		$program | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
+		$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		
 	}elseif ($ChocolateyPackage -eq $true) {
 		
 		# Add necessary info for chocolatey to work
-		$program | Add-Member -Type NoteProperty -Name "PackageName" -Value $PackageName
+		$package | Add-Member -Type NoteProperty -Name "PackageName" -Value $PackageName
 		
 	}
 	
 	# Add optional note property if passed in
 	if ([System.String]::IsNullOrWhiteSpace($Note) -eq $false) {
-		$program | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
+		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
 	}
-		
-	# Add new PMProgram to list
-	$programList.Add($program)
+	
+	# Add new PMpackage to list
+	$packageList.Add($package)
 		
 	# Export-out list to xml file
-	Export-Data -Object $programList -Path "$env:USERPROFILE\ProgramManager\programDatabase.xml" `
-		-Type "Clixml"
+	Export-Data -Object $packageList -Path "$dataPath\packageDatabase.xml" -Type "Clixml"	
 	
 	
 }
