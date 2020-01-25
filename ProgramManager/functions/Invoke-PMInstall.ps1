@@ -1,4 +1,25 @@
 ﻿function Invoke-PMInstall {
+    <#
+    .SYNOPSIS
+        Installs a ProgramManager package.
+        
+    .DESCRIPTION
+        Installs a ProgramManager package from the database.
+        
+    .PARAMETER Name
+        The name of the ProgramManager package to install.
+        
+    .PARAMETER ShowUI
+        A switch to show the installation UI for msi installers.
+        This does not affect exe installers since they have no standard switches.
+        This does not affect portable packages or chocolatey packages either.
+        
+    .EXAMPLE
+        PS C:\> Invoke-PMInstall -Name "chrome"
+        
+        Will install the package named "chrome" found within the database.
+    #>
+    
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory = $true, Position = 0)]
@@ -59,12 +80,19 @@
     # If its a url package, download it and set some properties to allow the installation code to run
     if ($package.Type -eq "UrlPackage") {
         
-        # Download the installer from the url
-        Invoke-WebRequest -Uri $package.Url -OutFile "$dataPath\$($package.Name)\installer.something"
+        # Get the absolute url after any redirection
+        $url = [System.Net.HttpWebRequest]::Create($package.Url).GetResponse().ResponseUri.AbsoluteUri
+        
+        # Get the file extension in order to save it correctly
+        $regex = [regex]::Match($url, ".*\.(.*)")
+        $extension = $regex.Groups[1].Value
+        
+        # Download the installer from the url    
+        Invoke-WebRequest -Uri $url -OutFile "$dataPath\$($package.Name)\installer.$extension"
         
         # Set executable properties in the package object to allow later code to run correctly
-        $package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value "installer"
-        $package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value "something"
+        $package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value "installer.$extension"
+        $package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value $extension
         
     }
     
@@ -92,9 +120,15 @@
                 $logArgument = "/l*v `"$dataPath\install-$($apckage.Name)-$(Get-Date -Format "yyyy/MM/dd HH:mm").txt`""
             }
             
-            # If the package has a defined install directory, set the msiexec argument to that
+            # If the package has a defined install directory, set the msiexec argument(s) to that
             if ([System.String]::IsNullOrWhiteSpace($package.InstallDirectory) -eq $false) {
-                $paramArgument = "INSTALL_PREFIX_1=`"$($package.InstallDirectory)`""
+                $paramArgument += "INSTALL_PREFIX_1=`"$($package.InstallDirectory)`" "
+                $paramArgument += "TARGETDIR=`"$($package.InstallDirectory)`" "
+                $paramArgument += "INSTALLDIR=`"$($package.InstallDirectory)`" "
+                $paramArgument += "INSTALLDIRECTORY=`"$($package.InstallDirectory)`" "
+                $paramArgument += "TARGETDIRECTORY=`"$($package.InstallDirectory)`" "
+                $paramArgument += "TARGETPATH=`"$($package.InstallDirectory)`" "
+                $paramArgument += "INSTALLPATH=`"$($package.InstallDirectory)`" "  
             }
             
             # Set the msiexec arguments
@@ -125,14 +159,22 @@
         # Copy package folder to install directory
         Copy-Item -Path "$dataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
         
-        #
-        #! At some point, add support for post-install scriptblock execution
-        #       -> mainly for the copying of shortcuts, startup etc
-        
     }elseif ($package.Type -eq "ChocolateyPackage") {
         
+        #! TODO
         
     }
+    
+    #
+    #! At some point, add support for post-install scriptblock execution
+    #       -> mainly for the copying of shortcuts, startup, setting symlink folders etc
+    #
+    
+    # Set the installed flag for the package
+    $package.IsInstalled = $true
+    
+    # Export-out package list (with modified package) to xml file
+	Export-Data -Object $packageList -Path "$dataPath\packageDatabase.xml" -Type "Clixml"	
             
     
 }

@@ -189,7 +189,6 @@
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
 			
 			# This is a folder so can be moved straight to the package store
-			$folder = Get-Item -Path $PackageLocation
 			Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name"
 						
 			Remove-Item -Path "$dataPath\temp" -Recurse -Force
