@@ -3,7 +3,12 @@
     Param (
         [Parameter(Mandatory = $true, Position = 0)]
         [string]
-        $Name
+        $Name,
+        
+        [Parameter(Position = 1)]
+        [switch]
+        $ShowUI
+        
     )
     
     $dataPath = "$env:USERPROFILE\ProgramManager"
@@ -51,18 +56,63 @@
         break
     }
     
-    if ($package.Type -eq "LocalPackage") {
+    # If its a url package, download it and set some properties to allow the installation code to run
+    if ($package.Type -eq "UrlPackage") {
+        
+        # Download the installer from the url
+        Invoke-WebRequest -Uri $package.Url -OutFile "$dataPath\$($package.Name)\installer.something"
+        
+        # Set executable properties in the package object to allow later code to run correctly
+        $package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value "installer"
+        $package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value "something"
+        
+    }
+    
+    # Installation logic
+    if ($package.Type -eq "LocalPackage" -or $package.Type -eq "UrlPackage") {
         
         if ($package.ExecutableType -eq ".exe") {
             
+            # Start the exe installer
+            Start-Process -FilePath $dataPath\$package.Name\$package.ExecutableName
+            
         }elseif ($package.ExecutableType -eq ".msi") {
+                        
+            # Set the display argument for msiexec
+            if ($ShowUI -eq $true) {
+                $dislayArgument = "/qr "
+            }else {
+                $dislayArgument = "/qn "
+            }
             
-            msiexec.exe /i "$dataPath\packages\$($package.Name)\$($package.ExecutableName)" /qb /l*v "$dataPath\latestlog.txt" PARAMETERS
+            # Set the logging argument for msiexec
+            if ($NoLog -eq $true) {
+                $logArgument = ""
+            }else {
+                $logArgument = "/l*v `"$dataPath\install-$($apckage.Name)-$(Get-Date -Format "yyyy/MM/dd HH:mm").txt`""
+            }
             
+            # If the package has a defined install directory, set the msiexec argument to that
+            if ([System.String]::IsNullOrWhiteSpace($package.InstallDirectory) -eq $false) {
+                $paramArgument = "INSTALL_PREFIX_1=`"$($package.InstallDirectory)`""
+            }
+            
+            # Set the msiexec arguments
+            $processStartupInfo = New-Object System.Diagnostics.ProcessStartInfo -Property @{
+                FileName = "msiexec.exe"
+                Arguments = "$dataPath\packages\$($package.Name)\$($package.ExecutableName) " + $dislayArgument + $logArgument + $paramArgument
+                UseShellExecute = $false
+            }
+            
+            # Start msiexec and wait until it's finished
+            $process = New-Object System.Diagnostics.Process
+            $process.StartInfo = $processStartupInfo
+            $process.Start()
+            
+            $process.WaitForExit()
+            $process.Dispose()
+                        
         }
-        
-    }elseif ($package.Type -eq "UrlPackage") {
-        
         
     }elseif ($package.Type -eq "PortablePackage") {
         
