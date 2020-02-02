@@ -120,43 +120,19 @@
 		
 	)
 	
-	$dataPath = "$env:USERPROFILE\ProgramManager"
+	# If no name specified, abort
+	if ([System.String]::IsNullOrWhiteSpace($Name)) {
+		break
+	}
 	
-	# Create list of all PMProgram objects
-	$packageList = [System.Collections.Generic.List[psobject]]@()
+	# Import all PMPackage objects from the database file
+	$packageList = Import-Package
 	
-	# Check if the xml database already exists
-	if ((Test-Path -Path "$dataPath\packageDatabase.xml") -eq $true) {
-		
-		# The xml database exists
-		# Load all existing PMPrograms into a list
-		$xmlData = Import-Data -Path "$dataPath\packageDatabase.xml" -Type "Clixml"
-		
-		# Iterate through all imported objects
-		foreach ($obj in $xmlData) {
-			# Only operate on PMProgram objects
-			if ($obj.psobject.TypeNames[0] -eq "Deserialized.ProgramManager.Package") {
-				# Create new PMProgram objects
-				$existingPackage = New-Object -TypeName psobject 
-				$existingPackage.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
-				
-				# Copy the properties from the Deserialized object into the new one
-				foreach ($property in $obj.psobject.Properties) {
-					$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
-				}
-				
-				$packageList.Add($existingPackage)
-				
-			}
-		}
-		
-		# Check if name is already taken
-		$package = $packageList | Where-Object { $_.Name -eq $Name }
-		if ($null -ne $package) {
-			"There already exists a package called: $Name" | Write-Error
-			break
-		}
-		
+	# Check if name is already taken
+	$package = $packageList | Where-Object { $_.Name -eq $Name }
+	if ($null -ne $package) {
+		"There already exists a package called: $Name" | Write-Error
+		break
 	}
 		
 	# Create PMpackage object	
@@ -168,6 +144,11 @@
 	$package | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
 	$package | Add-Member -Type NoteProperty -Name "IsInstalled" -Value $false
 	
+	if ((Test-Path -Path "$script:DataPath\packages\") -eq $false) {
+		# The packages subfolder doesn't exist. Create it to avoid errors with Move-Item
+		New-Item -ItemType Directory -Path "$script:DataPath\packages\"
+	}
+	
 	if ($LocalPackage -eq $true) {	
 		
 		# Check that the path is valid
@@ -178,7 +159,7 @@
 		
 		# Get the details of the executable and move it to the package store
 		$executable = Get-Item -Path $PackageLocation
-		Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name\$($executable.Name)"
+		Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($executable.Name)"
 		
 		# Add executable properties
 		$package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value $executable.Name
@@ -210,9 +191,9 @@
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
 			
 			# This is a folder so can be moved straight to the package store
-			Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name"
+			Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name"
 						
-			Remove-Item -Path "$dataPath\temp" -Recurse -Force
+			Remove-Item -Path "$script:DataPath\temp" -Recurse -Force
 			
 		}else {
 			
@@ -223,10 +204,10 @@
 			if ($file.Extension -eq ".zip" -or $file.Extension -eq ".tar") {
 				
 				# Extract archive to parent location
-				Expand-Archive -Path $PackageLocation -DestinationPath "$dataPath\temp"
+				Expand-Archive -Path $PackageLocation -DestinationPath "$script:DataPath\temp"
 				
 				# Set the current directory to the extracted-archive location, initialising for the do-loop
-				$currentDir = "$dataPath\temp"
+				$currentDir = "$script:DataPath\temp"
 				
 				# Recursively look into the folder heirarchy until there is no more folders containing a single folder
 				# i.e. stops having folder1 -> folder2 -> folder3 -> contents
@@ -240,7 +221,7 @@
 					if ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true) {
 						$currentDir = $children.FullName
 					}else {
-						Move-Item -Path $currentDir -Destination "$dataPath\packages\$Name"
+						Move-Item -Path $currentDir -Destination "$script:DataPath\packages\$Name"
 					}
 					
 				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
@@ -248,8 +229,8 @@
 			}elseif ($file.Extension -eq ".exe") {
 				
 				# This is a portable package with only a single exe file				
-				New-Item -Path "$dataPath\packages\$Name-$($file.BaseName)" -ItemType Directory			
-				Move-Item -Path $PackageLocation -Destination "$dataPath\packages\$Name\$($file.Name)"
+				New-Item -Path "$script:DataPath\packages\$Name-$($file.BaseName)" -ItemType Directory			
+				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)"
 				
 			}
 			
@@ -284,7 +265,7 @@
 	$packageList.Add($package)
 		
 	# Export-out list to xml file
-	Export-Data -Object $packageList -Path "$dataPath\packageDatabase.xml" -Type "Clixml"	
+	Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"	
 	
 	
 }

@@ -31,18 +31,16 @@
         $ShowUI
         
     )
-    
-    $dataPath = "$env:USERPROFILE\ProgramManager"
-        
+            
     # Create list of all PMProgram objects
 	$packageList = [System.Collections.Generic.List[psobject]]@()
 	
 	# Check if the xml database already exists
-    if ((Test-Path -Path "$dataPath\packageDatabase.xml") -eq $true) {
+    if ((Test-Path -Path "$script:DataPath\packageDatabase.xml") -eq $true) {
         
 		# The xml database exists
 		# Load all existing PMPrograms into a list
-		$xmlData = Import-Data -Path "$dataPath\packageDatabase.xml" -Type "Clixml"
+		$xmlData = Import-Data -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
 		
 		# Iterate through all imported objects
 		foreach ($obj in $xmlData) {
@@ -96,7 +94,7 @@
             $extension = $regex.Groups[1].Value
             
             # Download the installer from the url    
-            Invoke-WebRequest -Uri $url -OutFile "$dataPath\$($package.Name)\installer.$extension"
+            Invoke-WebRequest -Uri $url -OutFile "$script:DataPath\$($package.Name)\installer.$extension"
             
             # Set executable properties in the package object to allow later code to run correctly
             $package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value "installer.$extension"
@@ -110,7 +108,7 @@
             if ($package.ExecutableType -eq ".exe") {
                 
                 # Start the exe installer
-                Start-Process -FilePath $dataPath\$package.Name\$package.ExecutableName
+                Start-Process -FilePath $script:DataPath\$package.Name\$package.ExecutableName
                 
             }elseif ($package.ExecutableType -eq ".msi") {
                             
@@ -125,7 +123,7 @@
                 if ($NoLog -eq $true) {
                     $logArgument = ""
                 }else {
-                    $logArgument = "/l*v `"$dataPath\install-$($apckage.Name)-$(Get-Date -Format "yyyy/MM/dd HH:mm").txt`""
+                    $logArgument = "/l*v `"$script:DataPath\install-$($apckage.Name)-$(Get-Date -Format "yyyy/MM/dd HH:mm").txt`""
                 }
                 
                 # If the package has a defined install directory, set the msiexec argument(s) to that
@@ -142,7 +140,7 @@
                 # Set the msiexec arguments
                 $processStartupInfo = New-Object System.Diagnostics.ProcessStartInfo -Property @{
                     FileName = "msiexec.exe"
-                    Arguments = "$dataPath\packages\$($package.Name)\$($package.ExecutableName) " + $dislayArgument + $logArgument + $paramArgument
+                    Arguments = "$script:DataPath\packages\$($package.Name)\$($package.ExecutableName) " + $dislayArgument + $logArgument + $paramArgument
                     UseShellExecute = $false
                 }
                 
@@ -165,7 +163,7 @@
             }
                     
             # Copy package folder to install directory
-            Copy-Item -Path "$dataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
+            Copy-Item -Path "$script:DataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
             
         }elseif ($package.Type -eq "ChocolateyPackage") {
             
@@ -185,7 +183,7 @@
     }
     
     # Export-out package list (with modified package) to xml file
-	Export-Data -Object $packageList -Path "$dataPath\packageDatabase.xml" -Type "Clixml"	
+	Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"	
             
     
 }
