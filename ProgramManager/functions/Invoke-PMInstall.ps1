@@ -6,7 +6,7 @@
     .DESCRIPTION
         Installs a ProgramManager package from the database.
         
-    .PARAMETER Name
+    .PARAMETER PackageName
         The name of the ProgramManager package to install.
         
     .PARAMETER ShowUI
@@ -72,6 +72,11 @@
     
     # Iterate through all passed package names
     foreach ($name in $PackageName) {
+        
+        # Check if the package has a pre-install scriptblock and run it
+        if ($null -ne $package.PreInstallScriptblock) {
+            Invoke-Command -ScriptBlock $package.PreInstallScriptblock #-ArgumentList
+        }
     
         # Get the package by name
         $package = $packageList | Where-Object { $_.Name -eq $name }
@@ -169,10 +174,10 @@
             
         }
         
-        #
-        #! At some point, add support for post-install scriptblock execution
-        #       -> mainly for the copying of shortcuts, startup, setting symlink folders etc
-        #
+        # Check if the package has a post-install scriptblock and run it
+        if ($null -ne $package.PostInstallScriptblock) {
+            Invoke-Command -ScriptBlock $package.PostInstallScriptblock #-ArgumentList
+        }
         
         # Set the installed flag for the package
         $package.IsInstalled = $true

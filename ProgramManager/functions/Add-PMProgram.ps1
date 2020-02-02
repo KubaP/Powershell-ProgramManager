@@ -40,6 +40,12 @@
 	.PARAMETER Note
 		A short note/description to explain what the package entry is. Optonal
 		
+	.PARAMETER PreInstallScriptblock
+		A script block which will be executed before the main package installation process.
+		
+	.PARAMETER PostInstallScriptblock
+		A script block which will be executed after the main package installation process.
+		
 	.EXAMPLE
 		PS C:\> Add-PMProgram -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
 		
@@ -89,14 +95,29 @@
 		[Parameter(ParameterSetName = "ChocolateyPackage", Mandatory = $true, Position = 2)]
 		[string]
 		$PackageName,
-				
+		
 		
 		[Parameter(ParameterSetName = "LocalPackage")]
 		[Parameter(ParameterSetName = "UrlPackage")]
 		[Parameter(ParameterSetName = "PortablePackage")]
 		[Parameter(ParameterSetName = "ChocolateyPackage")]
 		[string]
-		$Note
+		$Note,
+		
+		[Parameter(ParameterSetName = "LocalPackage")]
+		[Parameter(ParameterSetName = "UrlPackage")]
+		[Parameter(ParameterSetName = "PortablePackage")]
+		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[scriptblock]
+		$PreInstallScriptblock,
+		
+		[Parameter(ParameterSetName = "LocalPackage")]
+		[Parameter(ParameterSetName = "UrlPackage")]
+		[Parameter(ParameterSetName = "PortablePackage")]
+		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[scriptblock]
+		$PostInstallScriptblock
+		
 	)
 	
 	$dataPath = "$env:USERPROFILE\ProgramManager"
@@ -248,6 +269,16 @@
 	if ([System.String]::IsNullOrWhiteSpace($Note) -eq $false) {
 		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
 	}
+	
+	# Add optional scriptblock properties if passed in
+	if ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock) -eq $false) {
+		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock
+	}
+	
+	if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock) -eq $false) {
+		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock
+	}
+	
 	
 	# Add new PMpackage to list
 	$packageList.Add($package)
