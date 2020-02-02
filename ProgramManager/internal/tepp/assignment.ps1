@@ -1,4 +1,1 @@
-﻿<#
-# Example:
-Register-PSFTeppArgumentCompleter -Command Get-Alcohol -Parameter Type -Name ProgramManager.alcohol
-#>
+﻿Register-ArgumentCompleter -CommandName Invoke-PMInstall -ParameterName Name -ScriptBlock $argCompleter_PackageNames
