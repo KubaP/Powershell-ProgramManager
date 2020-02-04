@@ -1,4 +1,17 @@
 ﻿function Import-PackageList {
+	<#
+	.SYNOPSIS
+		Imports the package list.
+		
+	.DESCRIPTION
+		Imports all package psobjects from the xml database.
+		
+	.EXAMPLE
+		PS C:\> $list = Import-PackageList
+		
+		This populates the $list with all defined packages.
+		
+	#>
     
     # Create list of all PMPackage objects
 	$packageList = [System.Collections.Generic.List[psobject]]@()

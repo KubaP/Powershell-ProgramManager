@@ -89,6 +89,7 @@
 		[Parameter(ParameterSetName = "LocalPackage", Position = 3)]
 		[Parameter(ParameterSetName = "UrlPackage", Position = 3)]		
 		[Parameter(ParameterSetName = "PortablePackage", Mandatory = $true, Position = 3)]
+		[AllowEmptyString()]
 		[string]
 		$InstallDirectory,
 				
@@ -101,6 +102,7 @@
 		[Parameter(ParameterSetName = "UrlPackage")]
 		[Parameter(ParameterSetName = "PortablePackage")]
 		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[AllowEmptyString()]
 		[string]
 		$Note,
 		
@@ -108,6 +110,7 @@
 		[Parameter(ParameterSetName = "UrlPackage")]
 		[Parameter(ParameterSetName = "PortablePackage")]
 		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[AllowEmptyString()]
 		[scriptblock]
 		$PreInstallScriptblock,
 		
@@ -115,6 +118,7 @@
 		[Parameter(ParameterSetName = "UrlPackage")]
 		[Parameter(ParameterSetName = "PortablePackage")]
 		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[AllowEmptyString()]
 		[scriptblock]
 		$PostInstallScriptblock
 		
@@ -126,7 +130,10 @@
 	}
 	
 	# Import all PMPackage objects from the database file
-	$packageList = Import-Package
+	$packageList = Import-PackageList
+	if ($null -eq $packageList) {
+		$packageList = [System.Collections.Generic.List[psobject]]@()
+	}
 	
 	# Check if name is already taken
 	$package = $packageList | Where-Object { $_.Name -eq $Name }
@@ -159,6 +166,7 @@
 		
 		# Get the details of the executable and move it to the package store
 		$executable = Get-Item -Path $PackageLocation
+		New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\"
 		Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($executable.Name)"
 		
 		# Add executable properties
