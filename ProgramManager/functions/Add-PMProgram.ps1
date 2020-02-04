@@ -55,6 +55,7 @@
 	
 	[CmdletBinding(DefaultParameterSetName = "LocalInstaller")]
 	Param (
+		
 		[Parameter(ParameterSetName = "LocalPackage", Mandatory = $true, Position = 0)]
 		[Parameter(ParameterSetName = "UrlPackage", Mandatory = $true, Position = 0)]
 		[Parameter(ParameterSetName = "PortablePackage", Mandatory = $true, Position = 0)]
@@ -83,6 +84,7 @@
 		[Parameter(ParameterSetName = "LocalPackage", Mandatory = $true, Position = 2)]
 		[Parameter(ParameterSetName = "UrlPackage", Mandatory = $true, Position = 2)]
 		[Parameter(ParameterSetName = "PortablePackage", Mandatory = $true, Position = 2)]
+		[AllowEmptyString()]
 		[string]
 		$PackageLocation,
 		
@@ -123,12 +125,7 @@
 		$PostInstallScriptblock
 		
 	)
-	
-	# If no name specified, abort
-	if ([System.String]::IsNullOrWhiteSpace($Name)) {
-		break
-	}
-	
+		
 	# Import all PMPackage objects from the database file
 	$packageList = Import-PackageList
 	if ($null -eq $packageList) {
@@ -138,10 +135,10 @@
 	# Check if name is already taken
 	$package = $packageList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $package) {
-		"There already exists a package called: $Name" | Write-Error
-		break
+		Write-Message -Message "There already exists a package called: $Name" -DisplayWarning
+		return
 	}
-		
+	
 	# Create PMpackage object	
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
@@ -153,20 +150,31 @@
 	
 	if ((Test-Path -Path "$script:DataPath\packages\") -eq $false) {
 		# The packages subfolder doesn't exist. Create it to avoid errors with Move-Item
-		New-Item -ItemType Directory -Path "$script:DataPath\packages\"
+		New-Item -ItemType Directory -Path "$script:DataPath\packages\" | Out-Null
 	}
 	
 	if ($LocalPackage -eq $true) {	
 		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
-			"There is no executable located at the path: $PackageLocation" | Write-Error
-			break
+			Write-Message -Message "There is no valid path pointing to: $PackageLocation" -DisplayWarning
+			return
 		}
 		
-		# Get the details of the executable and move it to the package store
-		$executable = Get-Item -Path $PackageLocation
-		New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\"
+		# Get the details of the executable and check whether it is actually a file
+		$executable = Get-Item -Path $PackageLocation		
+		if ($executable.PSIsContainer -eq $true -or $executable.GetType().Name -eq "Object[]") {
+			Write-Message -Message "There is no (single) executable located at the path: $PackageLocation" -DisplayWarning
+			return
+		}
+		
+		if (($executable.Extension -match ".exe|.msi") -eq $false) {
+			Write-Message -Message "There is no installer file located at the path: $PackageLocation" -DisplayWarning
+			return
+		}
+		
+		# Move the executable to the package store
+		New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" | Out-Null
 		Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($executable.Name)"
 		
 		# Add executable properties
@@ -192,8 +200,8 @@
 		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
-			"There is no folder/file located at the path: $PackageLocation" | Write-Error
-			break
+			Write-Message -Message "There is no folder/file located at the path: $PackageLocation" -DisplayWarning
+			return
 		}
 		
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {

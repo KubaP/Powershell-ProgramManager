@@ -34,14 +34,16 @@
             # Copy the test packages from the git repo to the temporary drive
             New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
             Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
-                        
+            
             # Run the command
-            Add-PMProgram -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -Verbose
+            Add-PMProgram -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+            
+            # Check that the database has been created
+            (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $true     
             
             # Read the written data back in to validate
             $packageList = Import-PackageList
             $package = $packageList[0]
-            $packageList.Count | Should -Be 1
             
             # Check the property values are correct
             $package.Name | Should -Be "test-package"
@@ -75,23 +77,100 @@
             
             
             # Delete the package store and database file for next test
-            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force -ErrorAction SilentlyContinue
-            Remove-Item -Path "$dataPath\packages" -Recurse -Force -ErrorAction SilentlyContinue
-            Remove-Item -Path "TestDrive:\RawPackages" -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+            Remove-Item -Path "$dataPath\packages\" -Recurse -Force
+            Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
             
         }
-        <#
-        It "Given invalid parameter -Path" -TestCases @(
-           
-            @{ Path = "" }
         
-        ) {
+        InModuleScope -ModuleName ProgramManager {
             
-            # Pass test case data into the test body
-            Param ($Path)
+            # Stop any outputting to screen
+            Mock Write-Message { }
             
+            It "Given invalid parameter -Name <Name>; It should stop and warn" -TestCases @(
+                
+                # The different invalid test cases for a name
+                @{ Name = "" }
+                @{ Name = "." }
+                @{ Name = "*" }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ([AllowEmptyString()]$Name)
+                
+                # Copy over pre-populated database file from git to check for name clashse as well...
+                
+                
+            }
+        
+            It "Given invalid parameter -Path <Path>; It should stop and warn" -TestCases @(
             
-        }#>
+                # The different invalid test cases for a local filepath
+                @{ Path = "b" }
+                @{ Path = "TestDrive:\non-existent-folder" }
+                @{ Path = "TestDrive:\non-existent-folder\non-existent-file" }
+                @{ Path = "TestDrive:\non-existent-folder\non-existent-file." }
+                @{ Path = "TestDrive:\non-existent-folder\non-existent-file.*" }
+                @{ Path = "TestDrive:\non-existent-folder\non-existent-file.file" }
+                @{ Path = "TestDrive:\non-existent-folder\" }
+                @{ Path = "TestDrive:\non-existent-folder\." }
+                @{ Path = "TestDrive:\non-existent-folder\*" }
+                @{ Path = " " }
+                @{ Path = "." }
+                @{ Path = ".." }
+                @{ Path = "..." }
+                @{ Path = "*" }
+                @{ Path = "****" }
+                @{ Path = "asd9udfh87d78yd7nydf7bfy79sd6fjik2l" }
+                @{ Path = "^£$%*&^$" }                
+                @{ Path = "TestDrive:\RawPackages\" }
+                @{ Path = "TestDrive:\RawPackages\." }
+                @{ Path = "TestDrive:\RawPackages\*" }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0" }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0." }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0.*" }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0.file" }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0.*." }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0.*\" }
+                @{ Path = "TestDrive:\RawPackages\localpackage-1.0*" }
+                @{ Path = "TestDrive:\RawPackages\localpackage*" }
+                @{ Path = "TestDrive:\RawPackages\PortablePackage_1.3.zip" }
+                @{ Path = "TestDrive:\RawPackages\PortablePackage_1.0" }
+                @{ Path = "TestDrive:\RawPackages\PortablePackage_1.0\" }
+                @{ Path = "TestDrive:\RawPackages\*package*" }
+                @{ Path = "TestDrive:\RawPackages\*package*.*" }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ([AllowEmptyString()]$Path)
+                
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                
+                # Run the command
+                Add-PMProgram -Name "test-package" -LocalPackage -PackageLocation $Path
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the database file hasn't been created (by some accident)
+                (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $false
+                
+                # Delet the packages for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
+                Remove-Item -Path "$dataPath\packages" -Recurse -Force 
+                
+            }
+            
+        }
+        
         
         # Delete the package store and database file for next set of tests
         Remove-Item -Path "$dataPath\packageDatabase.xml" -Force -ErrorAction SilentlyContinue
