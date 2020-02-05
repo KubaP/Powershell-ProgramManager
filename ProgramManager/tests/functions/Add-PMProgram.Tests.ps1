@@ -107,19 +107,28 @@
                 # Pass test case data into the test body
                 Param ([AllowEmptyString()]$Name)
                 
+                
                 # Copy over pre-populated database file from git to check for name clashse as well...
                 Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
                 
                 # Run the command
-                Add-PMProgram -Name $Name -UrlPackage -PackageLocation "https://somewhere" -Verbose
+                Add-PMProgram -Name $Name -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe"
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
+                # Check that the executable hasn't been moved from the original directory
+                (Test-Path -Path "TestDrive:\RawPackages\localpackage-1.0.exe") | Should -Be $true
+                
+                
                 # Delete the package store and database file for next test
                 Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
                 
             }
         
@@ -197,14 +206,110 @@
         
         
     }
-    
-    <#
+        
     Context "Url Package Validation" {
+        
+        It "Given valid parameters: Name <Name>; PackageLocation <Url>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+        
+            # The different valid test cases for a url package
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""}
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""}
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"}
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"}
+        
+        ) {
+            
+            #Pass test case data into the test body
+            Param ($Name, $PackageLocation, [AllowEmptyString()]$InstallDir, [AllowEmptyString()]$Note)
+            
+            
+            # Run the command
+            Add-PMProgram -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
+            
+            # Check that the database has been created
+            (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $true     
+            
+            # Read the written data back in to validate
+            $packageList = Import-PackageList
+            $package = $packageList[0]
+            
+            # Check the property values are correct
+            $package.Name | Should -Be $Name
+            $package.Type | Should -Be "UrlPackage"
+            $package.IsInstalled | Should -Be $false
+            $package.Url | Should -Be $PackageLocation
+            
+            # Check the optional property valuse are correct
+            if ([System.String]::IsNullOrWhiteSpace($InstallDir) -eq $true) {
+                $package.InstallDirectory | Should -Be $null
+            }else {
+                $package.InstallDirectory | Should -Be $InstallDir
+            }
+            
+            if ([System.String]::IsNullOrWhiteSpace($Note) -eq $true) {
+                $package.Note | Should -Be $null
+            }else {
+                $package.Note | Should -Be $Note
+            }
+            
+            
+            # Delete the package database file for next test
+            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+            
+        }
+        
+        InModuleScope -ModuleName ProgramManager {
+            
+            # Stop any message outputting to screen
+            Mock Write-Message { }
+            
+            It "Given invalid parameter -Name <Name>; It should stop and warn" -TestCases @(
+                
+                # The different invalid test cases for a name
+                @{ Name = "" }
+                @{ Name = " " }
+                @{ Name = "." }
+                @{ Name = "*" }
+                @{ Name = ".*" }
+                @{ Name = "asg%346£^ehah$%^47434!*" }
+                @{ Name = "..." }
+                @{ Name = "***" }
+                @{ Name = "existing-package" }
+                @{ Name = "     " }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ([AllowEmptyString()]$Name)
+                
+                
+                # Copy over pre-populated database file from git to check for name clashse as well...
+                Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+                
+                # Run the command
+                Add-PMProgram -Name $Name -UrlPackage -PackageLocation "https://somewhere"
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+                
+            }
+            
+            
+        }
         
     }
     
-    Context "Chocolatey Package Validation" {
+    Context "Portable Package Validation" {
         
-    }#>
+        
+        
+    }
+    
     
 }

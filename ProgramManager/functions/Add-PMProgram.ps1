@@ -205,7 +205,7 @@
 		$package | Add-Member -Type NoteProperty -Name "Url" -Value $PackageLocation
 		
 		# Add install directory if passed in
-		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory)) {
+		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
