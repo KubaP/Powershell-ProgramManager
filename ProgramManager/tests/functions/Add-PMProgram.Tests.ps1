@@ -13,7 +13,7 @@
         
     Context "Local Package Validation" {
         
-        It "Given valid parameters: Extension .<Extension>; Path TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
             
             # The different valid test cases for a local package (exe and msi)
             @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "" }
@@ -85,15 +85,22 @@
         
         InModuleScope -ModuleName ProgramManager {
             
-            # Stop any outputting to screen
+            # Stop any message outputting to screen
             Mock Write-Message { }
             
             It "Given invalid parameter -Name <Name>; It should stop and warn" -TestCases @(
                 
                 # The different invalid test cases for a name
                 @{ Name = "" }
+                @{ Name = " " }
                 @{ Name = "." }
                 @{ Name = "*" }
+                @{ Name = ".*" }
+                @{ Name = "asg%346£^ehah$%^47434!*" }
+                @{ Name = "..." }
+                @{ Name = "***" }
+                @{ Name = "existing-package" }
+                @{ Name = "     " }
                 
             ) {
                 
@@ -101,7 +108,18 @@
                 Param ([AllowEmptyString()]$Name)
                 
                 # Copy over pre-populated database file from git to check for name clashse as well...
+                Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
                 
+                # Run the command
+                Add-PMProgram -Name $Name -UrlPackage -PackageLocation "https://somewhere" -Verbose
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
                 
             }
         

@@ -60,6 +60,7 @@
 		[Parameter(ParameterSetName = "UrlPackage", Mandatory = $true, Position = 0)]
 		[Parameter(ParameterSetName = "PortablePackage", Mandatory = $true, Position = 0)]
 		[Parameter(ParameterSetName = "ChocolateyPackage", Mandatory = $true, Position = 0)]
+		[AllowEmptyString()]
 		[string]
 		$Name,
 		
@@ -132,13 +133,25 @@
 		$packageList = [System.Collections.Generic.List[psobject]]@()
 	}
 	
+	# Check that the name is not empty
+	if ([System.String]::IsNullOrWhiteSpace($Name) -eq $true) {
+		Write-Message -Message "The name cannot be empty" -DisplayWarning
+		return
+	}
+	
+	# Check that the name doesn't contain any characters which could cause potential issues
+	if ($Name -like "*.*" -or $Name -like "*``**" -or $Name -like "*.``**") {
+		Write-Message -Message "The name contains invalid characters" -DisplayWarning
+		return
+	}
+	
 	# Check if name is already taken
 	$package = $packageList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $package) {
 		Write-Message -Message "There already exists a package called: $Name" -DisplayWarning
 		return
 	}
-	
+		
 	# Create PMpackage object	
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
