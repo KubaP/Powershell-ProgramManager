@@ -156,7 +156,7 @@
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
 	
-	# Add compulsary properties
+	# Add compulsory properties
 	$package | Add-Member -Type NoteProperty -Name "Name" -Value $Name
 	$package | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
 	$package | Add-Member -Type NoteProperty -Name "IsInstalled" -Value $false
@@ -211,6 +211,12 @@
 		
 	}elseif ($PortablePackage -eq $true) {
 		
+		# Check that a install directory parameter is given in
+		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $true) {
+			Write-Message -Message "The install directory path must not be empty" -DisplayWarning
+			return
+		}
+		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
 			Write-Message -Message "There is no folder/file located at the path: $PackageLocation" -DisplayWarning
@@ -221,8 +227,6 @@
 			
 			# This is a folder so can be moved straight to the package store
 			Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name"
-						
-			Remove-Item -Path "$script:DataPath\temp" -Recurse -Force
 			
 		}else {
 			
@@ -232,8 +236,9 @@
 			# Check if the file has an 'archive' attribute
 			if ($file.Extension -eq ".zip" -or $file.Extension -eq ".tar") {
 				
-				# Extract archive to parent location
+				# Extract archive to parent location and delete the original
 				Expand-Archive -Path $PackageLocation -DestinationPath "$script:DataPath\temp"
+				Remove-Item -Path $PackageLocation -Force
 				
 				# Set the current directory to the extracted-archive location, initialising for the do-loop
 				$currentDir = "$script:DataPath\temp"
@@ -258,12 +263,12 @@
 			}elseif ($file.Extension -eq ".exe") {
 				
 				# This is a portable package with only a single exe file				
-				New-Item -Path "$script:DataPath\packages\$Name-$($file.BaseName)" -ItemType Directory			
+				New-Item -ItemType Directory  -Path "$script:DataPath\packages\$Name\" | Out-Null
 				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)"
 				
 			}
 			
-		}		
+		}
 		
 		# Add necessary properties	
 		$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory

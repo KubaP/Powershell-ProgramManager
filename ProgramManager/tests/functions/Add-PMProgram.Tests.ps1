@@ -39,7 +39,7 @@
             Add-PMProgram -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
             
             # Check that the database has been created
-            (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $true     
+            Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
             
             # Read the written data back in to validate
             $packageList = Import-PackageList
@@ -70,10 +70,10 @@
             $packageFiles.Count | Should -Be 1
             
             # Check that the executable hasn't been left behind in its original directory
-            (Test-Path -Path "TestDrive:\RawPackages\$FileName") | Should -Be $false
+            Test-Path -Path "TestDrive:\RawPackages\$FileName" | Should -Be $false
             
             # Check that the executable has been correctly moved over
-            (Test-Path -Path "$dataPath\packages\test-package\$($package.ExecutableName)") | Should -Be $true
+            Test-Path -Path "$dataPath\packages\test-package\$($package.ExecutableName)" | Should -Be $true
             
             
             # Delete the package store and database file for next test
@@ -123,7 +123,7 @@
                 }
                 
                 # Check that the executable hasn't been moved from the original directory
-                (Test-Path -Path "TestDrive:\RawPackages\localpackage-1.0.exe") | Should -Be $true
+                Test-Path -Path "TestDrive:\RawPackages\localpackage-1.0.exe" | Should -Be $true
                 
                 
                 # Delete the package store and database file for next test
@@ -188,7 +188,7 @@
                 }
                 
                 # Check that the database file hasn't been created (by some accident)
-                (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $false
+                Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $false
                 
                 # Delet the packages for next test
                 Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
@@ -227,7 +227,7 @@
             Add-PMProgram -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
             
             # Check that the database has been created
-            (Test-Path -Path "$dataPath\packageDatabase.xml") | Should -Be $true     
+            Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
             
             # Read the written data back in to validate
             $packageList = Import-PackageList
@@ -306,6 +306,79 @@
     }
     
     Context "Portable Package Validation" {
+        
+        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+            
+            # The different valid test cases for a portable package (archive, folder, and exe)
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""}
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""}
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""}
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
+                        
+        ) {
+            
+            # Pass test case data into the test body
+            Param ($Type, $FileName, $InstallDir, [AllowEmptyString()]$Note)
+            
+            # Copy the test packages from the git repo to the temporary drive
+            New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+            Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+            
+            # Run the command
+            Add-PMProgram -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+                        
+            # Check that the database has been created
+            Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
+            
+            # Read the written data back in to validate
+            $packageList = Import-PackageList
+            $package = $packageList[0]
+            
+            # Check the property values are correct
+            $package.Name | Should -Be "test-package"
+            $package.Type | Should -Be "PortablePackage"
+            $package.IsInstalled | Should -Be $false
+            
+            # Check the optional property valuse are correct
+            if ([System.String]::IsNullOrWhiteSpace($InstallDir) -eq $true) {
+                $package.InstallDirectory | Should -Be $null
+            }else {
+                $package.InstallDirectory | Should -Be $InstallDir
+            }
+            
+            if ([System.String]::IsNullOrWhiteSpace($Note) -eq $true) {
+                $package.Note | Should -Be $null
+            }else {
+                $package.Note | Should -Be $Note
+            }
+            
+            # Test that there is only one package in the store
+            $packageFiles = Get-ChildItem -Path "$dataPath\packages\"            
+            $packageFiles.Count | Should -Be 1
+            
+            if ($Type -eq "exe") {
+                
+                # Check that the original executable has been moved
+                Test-Path -Path "TestDrive:\RawPackages\$FileName" | Should -Be $false
+                Test-Path -Path "$dataPath\packages\test-package\$FileName" | Should -Be $true
+                                
+            }elseif ($Type -eq "zip" -or $Type -eq "folder") {
+                
+                # Check that the original archive/folder has been moved
+                Test-Path -Path "TestDrive:\RawPackages\$FileName" | Should -Be $false
+                Test-Path -Path "$dataPath\packages\test-package\" | Should -Be $true
+                
+            }
+            
+            
+            # Delete the package store and database file for next test
+            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+            Remove-Item -Path "$dataPath\packages\" -Recurse -Force
+            Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
+            
+        }
         
         
         
