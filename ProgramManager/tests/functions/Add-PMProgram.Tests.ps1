@@ -145,6 +145,7 @@
                 @{ Path = "TestDrive:\non-existent-folder\." }
                 @{ Path = "TestDrive:\non-existent-folder\*" }
                 @{ Path = " " }
+                @{ Path = "~" }
                 @{ Path = "." }
                 @{ Path = ".." }
                 @{ Path = "..." }
@@ -189,11 +190,11 @@
                 
                 # Check that the database file hasn't been created (by some accident)
                 Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $false
+                Test-Path -Path "$dataPath\packages\*" | Should -Be $false
                 
-                # Delet the packages for next test
+                # Delete the packages for next test
                 Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
-                Remove-Item -Path "$dataPath\packages" -Recurse -Force 
-                
+                Remove-Item -Path "$dataPath\packages" -Recurse -Force
             }
             
         }
@@ -380,7 +381,109 @@
             
         }
         
-        
+        InModuleScope -ModuleName ProgramManager {
+            
+            # Stop any message outputting to screen
+            Mock Write-Message { }
+            
+            It "Given invalid parameter -Name <Name>; It should stop and warn" -TestCases @(
+                
+                # The different invalid test cases for a name
+                @{ Name = "" }
+                @{ Name = " " }
+                @{ Name = "." }
+                @{ Name = "*" }
+                @{ Name = ".*" }
+                @{ Name = "asg%346£^ehah$%^47434!*" }
+                @{ Name = "..." }
+                @{ Name = "***" }
+                @{ Name = "existing-package" }
+                @{ Name = "     " }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ([AllowEmptyString()]$Name)
+                
+                
+                # Copy over pre-populated database file from git to check for name clashse as well...
+                Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                
+                # Run the command
+                Add-PMProgram -Name $Name -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\"
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the executable hasn't been moved from the original directory
+                Test-Path -Path "TestDrive:\RawPackages\portablepackage-1.0.exe" | Should -Be $true
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
+                
+            }
+            
+            It "Given invalid parameter -Path <Path>; It should stop and warn" -TestCases @(
+            
+                # The different invalid test cases for a local filepath
+                @{ Path = "TestDrive:\non-existent-file" }
+                @{ Path = "TestDrive:\non-existent-file." }
+                @{ Path = "TestDrive:\non-existent-file.*" }
+                @{ Path = "TestDrive:\non-existent-file.file" }
+                @{ Path = "TestDrive:\non-existent-file. " }
+                @{ Path = "TestDrive:\non-existent-file.**" }
+                @{ Path = "TestDrive:\non-existent-file.*\*" }
+                @{ Path = "TestDrive:\portablepackage-1.0.exe." }
+                @{ Path = "TestDrive:\portablepackage-1.0" }
+                @{ Path = "TestDrive:\portablepackage*" }
+                @{ Path = "TestDrive:\*package-1.0.exe" }
+                @{ Path = "TestDrive:\PortablePackage_1.0\otherfile" }
+                @{ Path = "TestDrive:\PortablePackage_1.0\*" }
+                @{ Path = " " }
+                @{ Path = "~" }
+                @{ Path = "." }
+                @{ Path = ".." }
+                @{ Path = "..." }
+                @{ Path = "*" }
+                @{ Path = "****" }
+                @{ Path = "asd9udfh87d78yd7nydf7bfy79sd6fjik2l" }
+                @{ Path = "^£$%*&^$" }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ([AllowEmptyString()]$Path)
+                
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                
+                # Run the command
+                Add-PMProgram -Name "test-package" -PortablePackage -PackageLocation $Path -InstallDirectory "TestDrive:\"
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the database file hasn't been created (by some accident)
+                Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $false
+                
+                # Delete the packages for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
+                Remove-Item -Path "$dataPath\packages" -Recurse -Force 
+                
+            }
+            
+        }
         
     }
     

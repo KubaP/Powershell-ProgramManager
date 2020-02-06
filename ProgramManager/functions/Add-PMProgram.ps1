@@ -151,7 +151,7 @@
 		Write-Message -Message "There already exists a package called: $Name" -DisplayWarning
 		return
 	}
-		
+			
 	# Create PMpackage object	
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
@@ -164,6 +164,19 @@
 	if ((Test-Path -Path "$script:DataPath\packages\") -eq $false) {
 		# The packages subfolder doesn't exist. Create it to avoid errors with Move-Item
 		New-Item -ItemType Directory -Path "$script:DataPath\packages\" | Out-Null
+	}
+	
+	# Check that the path is not empty
+	if ([System.String]::IsNullOrWhiteSpace($Path) -eq $true) {
+		Write-Message -Message "The path cannot be empty" -DisplayWarning
+		return
+	}
+	
+	# Check that the path doesn't contain any characters which could cause potential issues or undesirable effects
+	if ($PackageLocation -like "." -or $PackageLocation -like ".``*" -or $PackageLocation -like "~" -or $PackageLocation -like ".." `
+		-or $PackageLocation -like "...") {
+		Write-Message -Message "The path provided is not accepted for safety reasons" -DisplayWarning
+		return
 	}
 	
 	if ($LocalPackage -eq $true) {	
@@ -223,6 +236,14 @@
 			return
 		}
 		
+		$item = Get-Item -Path $PackageLocation
+		
+		# There are multiple items collected under this file path so reject it
+		if ($item.GetType().Name -eq "Object[]") {
+			Write-Message -Message "You cannot specify multiple items in the filepath" -DisplayWarning
+			return
+		}
+		
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
 			
 			# This is a folder so can be moved straight to the package store
@@ -265,6 +286,12 @@
 				# This is a portable package with only a single exe file				
 				New-Item -ItemType Directory  -Path "$script:DataPath\packages\$Name\" | Out-Null
 				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)"
+				
+			}else {
+				
+				# This is a file of an invalid type for this package type
+				Write-Message -Message "The file specified is neither a executable nor an archive" -DisplayWarning
+				return
 				
 			}
 			
