@@ -4,7 +4,7 @@
 		Imports the package list.
 		
 	.DESCRIPTION
-		Imports all package psobjects from the xml database.
+		Imports all ProgramManager.Package psobjects from the xml database.
 		
 	.EXAMPLE
 		PS C:\> $list = Import-PackageList
@@ -33,7 +33,18 @@
 				
 				# Copy the properties from the Deserialized object into the new one
 				foreach ($property in $obj.psobject.Properties) {
-					$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
+					
+					if ($property.Name -eq "PreInstallScriptblock" -or $property.Name -eq "PostInstallScriptblock") {
+						
+						# Import serialised scriptblocks as scriptmethods rather than note properties
+						$existingPackage | Add-Member -Type ScriptMethod -Name $property.Name -Value $([Scriptblock]::Create($property.Value))
+						
+					}else {
+						
+						# Otherwise just copy the note property values over
+						$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
+						
+					}
 				}
 				
 				$packageList.Add($existingPackage)
@@ -42,7 +53,8 @@
 		}        
         
     }
-    
-    return $packageList
+	
+	# Return the list object; -NoEnumerate is used to avoid powershell converting list to object[] array
+    Write-Output $packageList -NoEnumerate
     
 }

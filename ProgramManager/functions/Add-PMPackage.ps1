@@ -1,4 +1,4 @@
-﻿function Add-PMProgram {
+﻿function Add-PMPackage {
 	<#
 	.SYNOPSIS
 		Adds a program to the ProgramManager database.
@@ -47,7 +47,7 @@
 		A script block which will be executed after the main package installation process.
 		
 	.EXAMPLE
-		PS C:\> Add-PMProgram -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
+		PS C:\> Add-PMPackage -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
 		
 		Adds the program to the database with the specified name and short note.
 
@@ -128,10 +128,7 @@
 	)
 		
 	# Import all PMPackage objects from the database file
-	$packageList = Import-PackageList
-	if ($null -eq $packageList) {
-		$packageList = [System.Collections.Generic.List[psobject]]@()
-	}
+	$packageList = Import-PackageList	
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($Name) -eq $true) {
@@ -312,12 +309,12 @@
 		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
 	}
 	
-	# Add optional scriptblock properties if passed in
-	if ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock) -eq $false) {
+	# Add optional scriptblock proprties if passed in
+	if ($null -ne $PreInstallScriptblock) {
 		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock
 	}
 	
-	if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock) -eq $false) {
+	if ($null -ne $PostInstallScriptblock) {
 		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock
 	}
 	

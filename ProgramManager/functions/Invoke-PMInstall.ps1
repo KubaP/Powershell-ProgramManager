@@ -32,39 +32,18 @@
         
     )
             
-    # Create list of all PMProgram objects
-	$packageList = [System.Collections.Generic.List[psobject]]@()
-	
-	# Check if the xml database already exists
+    
+	# Check if the xml database  exists
     if ((Test-Path -Path "$script:DataPath\packageDatabase.xml") -eq $true) {
         
-		# The xml database exists
 		# Load all existing PMPrograms into a list
-		$xmlData = Import-Data -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
-		
-		# Iterate through all imported objects
-		foreach ($obj in $xmlData) {
-			# Only operate on PMProgram objects
-			if ($obj.psobject.TypeNames[0] -eq "Deserialized.ProgramManager.Package") {
-				# Create new PMProgram objects
-				$existingPackage = New-Object -TypeName psobject 
-				$existingPackage.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
-				
-				# Copy the properties from the Deserialized object into the new one
-				foreach ($property in $obj.psobject.Properties) {
-					$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
-				}
-				
-                $packageList.Add($existingPackage)
-                
-			}
-		}
+		$packageList = Import-PackageList
 		
 	}else {
         
         # The xml database doesn't exist, abort
-        "The database file doesn't exist. Run Add-PMProgram to initialise it." | Write-Error
-        break
+        Write-Message -Message "The database file doesn't exist. Run Add-PMPackage to initialise it." -DisplayWarning
+        return
         
     }
     
@@ -73,14 +52,14 @@
         
         # Check if the package has a pre-install scriptblock and run it
         if ($null -ne $package.PreInstallScriptblock) {
-            Invoke-Command -ScriptBlock $package.PreInstallScriptblock #-ArgumentList
+            $package.PreInstallScriptblock()
         }
     
         # Get the package by name
         $package = $packageList | Where-Object { $_.Name -eq $name }
         if ($null -eq $package) {
-            "There is no package called: $Name" | Write-Error
-            break
+            Write-Message -Message "There is no package called: $Name" -DisplayWarning
+            return
         }
         
         # If its a url package, download it and set some properties to allow the installation code to run
@@ -158,8 +137,8 @@
             
             # Check that the install directory exists, otherwise abort
             if ((Test-Path -Path $package.InstallDirectory) -eq $false) {
-                "The install directory is invalid: $($package.InstallDirectory)" | Write-Error
-                break
+                Write-Message -Message "The install directory is invalid: $($package.InstallDirectory)" -DisplayWarning
+                return
             }
                     
             # Copy package folder to install directory
@@ -167,14 +146,13 @@
             
         }elseif ($package.Type -eq "ChocolateyPackage") {
             
-            # Invoke chocolatey
-            choco install $pacakge.PackageName
+            # TODO: Invoke chocolatey
             
         }
         
         # Check if the package has a post-install scriptblock and run it
         if ($null -ne $package.PostInstallScriptblock) {
-            Invoke-Command -ScriptBlock $package.PostInstallScriptblock #-ArgumentList
+            $package.PostInstallScriptblock()
         }
         
         # Set the installed flag for the package
@@ -182,7 +160,7 @@
     
     }
     
-    # Export-out package list (with modified package) to xml file
+    # Export-out package list (with modified package properties) to xml file
 	Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"	
             
     

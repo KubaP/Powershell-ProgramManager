@@ -41,9 +41,8 @@
 	
 	# Functions to export from this module
 	FunctionsToExport = @(
-		'Add-PMProgram',
+		'Add-PMPackage',
 		'Invoke-PMInstall',
-		'Import-Data',
 		'Export-Data',
 		'Import-PackageList',
 		'Write-Message'
