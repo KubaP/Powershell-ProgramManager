@@ -44,7 +44,9 @@
 		'Add-PMProgram',
 		'Invoke-PMInstall',
 		'Import-Data',
-		'Export-Data'
+		'Export-Data',
+		'Import-PackageList',
+		'Write-Message'
 	)
 	
 	# Cmdlets to export from this module

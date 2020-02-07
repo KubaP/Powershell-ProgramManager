@@ -1,0 +1,15 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>ProgramManager.Package</T>
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="Name">existing-package</S>
+      <S N="Type">UrlPackage</S>
+      <B N="IsInstalled">false</B>
+      <S N="Url">https://</S>
+    </MS>
+  </Obj>
+</Objs>

@@ -2,6 +2,8 @@
 $script:ModuleRoot = $PSScriptRoot
 $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\ProgramManager.psd1").ModuleVersion
 
+$script:DataPath = "$env:USERPROFILE\ProgramManager"
+
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = $global:ModuleDebugDotSource
 if ($ProgramManager_dotsourcemodule) { $script:doDotSource = $true }
