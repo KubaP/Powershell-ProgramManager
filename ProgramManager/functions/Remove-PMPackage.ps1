@@ -8,6 +8,14 @@
 		
 	.PARAMETER PackageName
 		The name of the pacakge to remove.
+	
+	.PARAMETER RetainFiles
+		If removing a local or portable package, which has files/installers saved within the package store, 
+		this switch will move those files to a specific location rather than deleting them.
+		
+	.PARAMETER Path
+		To be used in conjunction with -RetainFiles.
+		This is the path where the package files will be moved into.
 		
 	.EXAMPLE
 		PS C:\> Remove-PMPackage -PackageName "notepad"

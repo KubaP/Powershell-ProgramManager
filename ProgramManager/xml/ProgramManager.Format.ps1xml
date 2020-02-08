@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
 <Configuration>
 	<ViewDefinitions>
-		<!-- Foo.Bar -->
+		<!-- ProgramManager.Package -->
 		<View>
-			<Name>Foo.Bar</Name>
+			<Name>ProgramManager.Package</Name>
 			<ViewSelectedBy>
-				<TypeName>Foo.Bar</TypeName>
+				<TypeName>ProgramManager.Package</TypeName>
 			</ViewSelectedBy>
 			<TableControl>
 				<AutoSize/>
