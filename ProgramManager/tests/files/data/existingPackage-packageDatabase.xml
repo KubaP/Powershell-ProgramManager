@@ -12,4 +12,14 @@
       <S N="Url">https://</S>
     </MS>
   </Obj>
+  <Obj RefId="1">
+    <TNRef RefId="0" />
+    <MS>
+      <S N="Name">existing-local-package</S>
+      <S N="Type">LocalPackage</S>
+      <B N="IsInstalled">false</B>
+      <S N="ExecutableName">localpackage-1.0.exe</S>
+      <S N="ExecutableType">.exe</S>
+    </MS>
+  </Obj>
 </Objs>

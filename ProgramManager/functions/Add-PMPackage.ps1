@@ -281,7 +281,7 @@
 			}elseif ($file.Extension -eq ".exe") {
 				
 				# This is a portable package with only a single exe file				
-				New-Item -ItemType Directory  -Path "$script:DataPath\packages\$Name\" | Out-Null
+				New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" | Out-Null
 				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)"
 				
 			}else {
