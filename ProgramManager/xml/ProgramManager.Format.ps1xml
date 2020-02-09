@@ -3,29 +3,14 @@
 	<ViewDefinitions>
 		<!-- ProgramManager.Package -->
 		<View>
-			<Name>ProgramManager.Package</Name>
+			<Name>ProgramManager.Package-View.Overview</Name>
 			<ViewSelectedBy>
-				<TypeName>ProgramManager.Package</TypeName>
+				<TypeName>ProgramManager.Package-View.Overview</TypeName>
 			</ViewSelectedBy>
-			<TableControl>
-				<AutoSize/>
-				<TableHeaders>
-					<TableColumnHeader/>
-					<TableColumnHeader/>
-				</TableHeaders>
-				<TableRowEntries>
-					<TableRowEntry>
-						<TableColumnItems>
-							<TableColumnItem>
-								<PropertyName>Foo</PropertyName>
-							</TableColumnItem>
-							<TableColumnItem>
-								<PropertyName>Bar</PropertyName>
-							</TableColumnItem>
-						</TableColumnItems>
-					</TableRowEntry>
-				</TableRowEntries>
-			</TableControl>
-		</View>
+			<GroupBy>
+				<Label>Package Name</Label>
+				<PropertyName>Name</PropertyName>
+			</GroupBy>
+			
 	</ViewDefinitions>
 </Configuration>
