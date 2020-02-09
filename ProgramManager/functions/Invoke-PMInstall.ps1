@@ -42,7 +42,7 @@
 	}else {
         
         # The xml database doesn't exist, abort
-        Write-Message -Message "The database file doesn't exist. Run Add-PMPackage to initialise it." -DisplayWarning
+        Write-Message -Message "The database file doesn't exist. Run New-PMPackage to initialise it." -DisplayWarning
         return
         
     }

@@ -32,11 +32,11 @@
         
         # Create a package entry so then test the removal of said package
         if ($Type -eq "Local") {
-            Add-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
+            New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
         }elseif ($Type -eq "Portable") {
-            Add-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
+            New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
         }elseif ($Type -eq "Url") {
-            Add-PMPackage -Name $PackageName -UrlPackage -PackageLocation "https://somewhere"            
+            New-PMPackage -Name $PackageName -UrlPackage -PackageLocation "https://somewhere"            
         }elseif ($Type -eq "Chocolatey") {
             #! TODO
         }
@@ -90,9 +90,9 @@
         
         # Create a package entry so then test the removal of said package
         if ($Type -eq "Local") {
-            Add-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
+            New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
         }elseif ($Type -eq "Portable") {
-            Add-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
+            New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
         }
         
         # Read the database back in to ensure the package was added properly
@@ -225,7 +225,7 @@
             Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
             
             # Add the package entry
-            Add-PMPackage -Name $PackageName -LocalPackage "TestDrive:\RawPackages\localpackage-1.0.exe"
+            New-PMPackage -Name $PackageName -LocalPackage "TestDrive:\RawPackages\localpackage-1.0.exe"
             
             # Run the command
             Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path

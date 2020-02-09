@@ -1,4 +1,4 @@
-﻿Describe -Verbose "Validating Add-PMPackage" {
+﻿Describe -Verbose "Validating New-PMPackage" {
     $VerbosePreference = "Continue"
     
     # Create a temporary data directory within the Pester temp drive
@@ -36,7 +36,7 @@
             Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
             
             # Run the command
-            Add-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+            New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
             
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
@@ -115,7 +115,7 @@
                 Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
                 
                 # Run the command
-                Add-PMPackage -Name $Name -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe"
+                New-PMPackage -Name $Name -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe"
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
@@ -181,7 +181,7 @@
                 Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
                 
                 # Run the command
-                Add-PMPackage -Name "test-package" -LocalPackage -PackageLocation $Path
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation $Path
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
@@ -225,7 +225,7 @@
             
             
             # Run the command
-            Add-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
+            New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
             
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
@@ -288,7 +288,7 @@
                 Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
                 
                 # Run the command
-                Add-PMPackage -Name $Name -UrlPackage -PackageLocation "https://somewhere"
+                New-PMPackage -Name $Name -UrlPackage -PackageLocation "https://somewhere"
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
@@ -328,7 +328,7 @@
             Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
             
             # Run the command
-            Add-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+            New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
                         
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
@@ -413,7 +413,7 @@
                 Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
                 
                 # Run the command
-                Add-PMPackage -Name $Name -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\"
+                New-PMPackage -Name $Name -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\"
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
@@ -467,7 +467,7 @@
                 Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
                 
                 # Run the command
-                Add-PMPackage -Name "test-package" -PortablePackage -PackageLocation $Path -InstallDirectory "TestDrive:\"
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation $Path -InstallDirectory "TestDrive:\"
                 
                 # Check that the warning message was properly sent
                 Assert-MockCalled Write-Message -Times 1 -ParameterFilter {

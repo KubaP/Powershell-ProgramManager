@@ -1,4 +1,4 @@
-﻿function Add-PMPackage {
+﻿function New-PMPackage {
 	<#
 	.SYNOPSIS
 		Adds a program to the ProgramManager database.
@@ -47,7 +47,7 @@
 		A script block which will be executed after the main package installation process.
 		
 	.EXAMPLE
-		PS C:\> Add-PMPackage -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
+		PS C:\> New-PMPackage -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
 		
 		Adds the program to the database with the specified name and short note.
 
