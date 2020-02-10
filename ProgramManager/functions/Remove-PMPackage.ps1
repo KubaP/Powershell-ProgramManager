@@ -17,6 +17,12 @@
 		To be used in conjunction with -RetainFiles.
 		This is the path where the package files will be moved into.
 		
+	.PARAMETER Confirm
+		If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+		
+	.PARAMETER WhatIf
+		If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+		
 	.EXAMPLE
 		PS C:\> Remove-PMPackage -PackageName "notepad"
 		
@@ -24,7 +30,7 @@
 		
 	#>
 	
-	[CmdletBinding(SupportsShouldProcess = $true)]
+	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
 	Param (
 		
 		[Parameter(Mandatory = $true, Position = 0)]
@@ -88,13 +94,17 @@
 				return
 			}
 			
-			# Move the package files to the specified path
-			Move-Item -Path "$script:DataPath\packages\$PackageName\" -Destination $Path
+			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Move the package files to $Path")){
+				# Move the package files to the specified path
+				Move-Item -Path "$script:DataPath\packages\$PackageName\" -Destination $Path
+			}
 			
 		}else {
 			
-			# Remove the package from the store
-			Remove-Item -Path "$script:DataPath\packages\$PackageName\" -Recurse -Force
+			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Delete the package files")) {
+				# Remove the package from the package store
+				Remove-Item -Path "$script:DataPath\packages\$PackageName\" -Recurse -Force
+			}
 		
 		}
 		
@@ -105,11 +115,13 @@
 		
 	}
 	
-	# Remove the package from the list
-	$packageList.Remove($package) | Out-Null
 	
-	# Export-out (modified) list to xml file
-	Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"	
-	
+	if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Remove the package `'$PackageName`'")){
+		# Remove the PMPackage from the list
+		$packageList.Remove($package) | Out-Null
+		
+		# Export-out (modified) list to xml file
+		Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
+	}	
 	
 }

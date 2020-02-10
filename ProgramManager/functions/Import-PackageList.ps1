@@ -54,7 +54,7 @@
         
     }
 	
-	# Return the list object; -NoEnumerate is used to avoid powershell converting list to object[] array
+	# Return the list object; -NoEnumerate is used to avoid powershell converting list to Object[] array
     Write-Output $packageList -NoEnumerate
     
 }

@@ -38,7 +38,7 @@
 	
 	
 	if ($Type -eq "Clixml") {
-		$Object | Export-Clixml -Path $Path
+		$Object | Export-Clixml -Path $Path -Confirm:$false
 	}
 	
 	
