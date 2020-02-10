@@ -43,6 +43,7 @@
 	FunctionsToExport = @(
 		'New-PMPackage',
 		'Get-PMPackage',
+		'Set-PMPackage',
 		'Remove-PMPackage',
 		'Invoke-PMInstall',
 		'Export-Data',
