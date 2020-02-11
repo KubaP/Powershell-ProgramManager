@@ -71,7 +71,7 @@
     }
     
     # Check that the property name is valid
-    $property = $package.psobject.$properties | Where-Object { $_.Name -eq $PropertyName }
+    $property = $package.psobject.properties | Where-Object { $_.Name -eq $PropertyName }
     if ($null -eq $property) {
         Write-Message -Message "There is no property called: $PropertyName in package $PackageName" -DisplayWarning
         return
