@@ -54,4 +54,79 @@
         
     }
     
+    InModuleScope -ModuleName ProgramManager {
+        
+        # Stop any message outputting to screen
+        Mock Write-Message { }
+        
+        It "Given invalid parameter -PackageName <PackageName>" -TestCases @(
+            
+            # The different invalid values for a package name
+            @{ PackageName = "" }
+            @{ PackageName = " " }
+            @{ PackageName = "*" }
+            @{ PackageName = "." }
+            @{ PackageName = ".*" }
+            @{ PackageName = "ajkf32toir930fow" }
+            @{ PackageName = "asdfSAGTWTEGrae4GTQ£TGw" }
+            
+        ) {
+            
+            # Pass test case data into the test body
+            Param ($PackageName)
+            
+            # Copy over pre-populated database file from git to check for name clashse as well...
+            Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+            
+            # Run the command
+            Set-PMPackage -PackageName $PackageName -PropertyName "" -PropertyValue ""
+            
+            # Check that the warning message was properly sent
+            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                $DisplayWarning -eq $true
+            }
+            
+            # Delete the database file for next test
+            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+            
+            
+        }
+        
+        It "Given invalid parameter -PropertyName <PropertyName>" -TestCases @(
+            
+            # The different invalid values for a package name
+            @{ PropertyName = "" }
+            @{ PropertyName = "." }
+            @{ PropertyName = "*" }
+            @{ PropertyName = ".*" }
+            @{ PropertyName = "  " }
+            @{ PropertyName = "..." }
+            @{ PropertyName = "asdasfaf3qgesdf" }
+            @{ PropertyName = "6163rqf3^!" }
+            
+        ) {
+            
+            # Pass test case data into the test body
+            Param ($PropertyName)
+            
+            # Copy over pre-populated database file from git to check for name clashse as well...
+            Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+            
+            # Run the command
+            Set-PMPackage -PackageName "existing-package" -PropertyName $PropertyName -PropertyValue ""
+            
+            # Check that the warning message was properly sent
+            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                $DisplayWarning -eq $true
+            }
+            
+            # Delete the database file for next test
+            Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+            
+            
+        }
+        
+        
+    }
+    
 }
