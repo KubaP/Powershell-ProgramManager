@@ -48,15 +48,13 @@
 		Write-Message -Message "There is no package called: $PackageName" -DisplayWarning
 		return
     }
-    <#
-        TODO: figure out how exactly custom format types work
+    
     # Append the View object type to control the visual output of the object depending on the user's preference
     if ($ShowFullDetail -eq $true) {        
         $package.PSObject.TypeNames.Insert(1, "ProgramManager.Package-View.Full")        
     }else {        
         $package.PSObject.TypeNames.Insert(1, "ProgramManager.Package-View.Overview")        
-    }
-    #>
+    }    
     
     # Output the package object
     Write-Output $package

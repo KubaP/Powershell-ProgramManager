@@ -37,7 +37,7 @@
 	# TypesToProcess = @('xml\ProgramManager.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
+	FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @(

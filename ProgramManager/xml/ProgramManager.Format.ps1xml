@@ -8,9 +8,131 @@
 				<TypeName>ProgramManager.Package-View.Overview</TypeName>
 			</ViewSelectedBy>
 			<GroupBy>
-				<Label>Package Name</Label>
+				<Label>Package Name</Label>				
 				<PropertyName>Name</PropertyName>
 			</GroupBy>
-			
+			<ListControl>
+				<ListEntries>
+					<ListEntry>
+						<ListItems>
+							<ListItem>
+								<PropertyName>Type</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Installed</Label>
+								<ScriptBlock>if ($_.IsInstalled -eq $true) { "Yes" }else{ "No" }</ScriptBlock>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Url -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<PropertyName>Url</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.InstallDirectory -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Install Directory</Label>
+								<PropertyName>InstallDirectory</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Note -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Note/Description</Label>
+								<PropertyName>Note</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.PreInstallScriptblock -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Pre-Install Script</Label>
+								<ScriptBlock>$_.PreInstallScriptblock.Script</ScriptBlock>
+							</ListItem>	
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.PostInstallScriptblock -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Post-Install Script</Label>
+								<ScriptBlock>$_.PostInstallScriptblock.Script</ScriptBlock>
+							</ListItem>
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
+		</View>
+		<View>
+			<Name>ProgramManager.Package-View.Full</Name>
+			<ViewSelectedBy>
+				<TypeName>ProgramManager.Package-View.Full</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<Label>Package Name</Label>				
+				<PropertyName>Name</PropertyName>
+			</GroupBy>
+			<ListControl>
+				<ListEntries>
+					<ListEntry>
+						<ListItems>
+							<ListItem>
+								<PropertyName>Type</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Installed</Label>
+								<ScriptBlock>if ($_.IsInstalled -eq $true) { "Yes" }else{ "No" }</ScriptBlock>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.ExecutableName -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Executable Name</Label>
+								<PropertyName>ExecutableName</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.ExecutableType -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Executable Type</Label>
+								<PropertyName>ExecutableType</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Url -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<PropertyName>Url</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.InstallDirectory -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Install Directory</Label>
+								<PropertyName>InstallDirectory</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Note -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Note/Description</Label>
+								<PropertyName>Note</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.PreInstallScriptblock -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Pre-Install Script</Label>
+								<ScriptBlock>$_.PreInstallScriptblock.Script</ScriptBlock>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.PostInstallScriptblock -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Post-Install Script</Label>
+								<ScriptBlock>$_.PostInstallScriptblock.Script</ScriptBlock>
+							</ListItem>
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
+		</View>
 	</ViewDefinitions>
 </Configuration>

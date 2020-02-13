@@ -340,11 +340,11 @@
 	
 	# Add optional scriptblock proprties if passed in
 	if ($null -ne $PreInstallScriptblock) {
-		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock
+		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock.ToString()
 	}
 	
 	if ($null -ne $PostInstallScriptblock) {
-		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock
+		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock.ToString()
 	}
 	
 	
