@@ -154,7 +154,29 @@
 		Write-Message -Message "There already exists a package called: $Name" -DisplayWarning
 		return
 	}
-			
+	
+	# Check that the scriptblocks actually contain code
+	if ($null -ne $PreInstallScriptblock) {
+		if ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $true) {
+			Write-Message -Message "The Pre-Install Scriptblock cannot be empty" -DisplayWarning
+			return
+		}
+		if ($PreInstallScriptblock.ToString() -like "``*") {
+			Write-Message -Message "The Pre-Install Scriptblock cannot just be '*'" -DisplayWarning
+			return
+		}	
+	}
+	if ($null -ne $PostInstallScriptblock) {
+		if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $true) {
+			Write-Message -Message "The Post-Install Scriptblock cannot be empty" -DisplayWarning
+			return
+		}	
+		if ($PostInstallScriptblock.ToString() -like "``*") {
+			Write-Message -Message "The Post-Install Scriptblock cannot just be '*'" -DisplayWarning
+			return
+		}	
+	}
+	
 	# Create PMpackage object	
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")

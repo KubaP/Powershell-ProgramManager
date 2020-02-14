@@ -13,31 +13,77 @@
         
     Context "Local Package Validation" {
         
-        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; PreInstallScriptblock <PreInstallScript>; PostInstallScriptblock <PostInstallScript>; It should correctly write the data" -TestCases @(
             
             # The different valid test cases for a local package (exe and msi)
-            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "" }
-            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "" }
-            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "A descriptive note" }
-            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note" }
-            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "" }
-            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "" }
-            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "A descriptive note" }
-            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "A descriptive note" }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = ""; PreInstallScript = ""; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = ""; PreInstallScript = ""; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = ""; PreInstallScript = ""; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "exe"; FileName = "localpackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = ""; PreInstallScript = ""; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Extension = "msi"; FileName = "localpackage-1.0.msi"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
             
         ) {
             
             # Pass test case data into the test body
-            Param ($Extension, $FileName, [AllowEmptyString()]$InstallDir, [AllowEmptyString()]$Note)
+            Param ($Extension, $FileName, [AllowEmptyString()]$InstallDir, [AllowEmptyString()]$Note, $PreInstallScript, $PostInstallScript)
             
             
             # Copy the test packages from the git repo to the temporary drive
             New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
             Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
             
-            # Run the command
-            New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+            if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+             
+            }elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript
+                
+            }elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PostInstallScriptblock $PostInstallScript
             
+            }else {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+                
+            }
+                        
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
             
@@ -65,6 +111,10 @@
                 $package.Note | Should -Be $Note
             }
             
+            # Check that the scriptblocks have been properly added
+            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
+            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
+                        
             # Test that there is only one package in the store
             $packageFiles = Get-ChildItem -Path "$dataPath\packages\"            
             $packageFiles.Count | Should -Be 1
@@ -197,6 +247,73 @@
                 Remove-Item -Path "$dataPath\packages" -Recurse -Force
             }
             
+            It "Given invalid parameter -PreInstallScriptBlock <PreInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a preinstallscriptblock
+                @{ PreInstallScript = {} }
+                @{ PreInstallScript = {   } }
+                @{ PreInstallScript = {*} }
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PreInstallScript)
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe" -PreInstallScriptblock $PreInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the executable hasn't been moved from the original directory
+                Test-Path -Path "TestDrive:\RawPackages\localpackage-1.0.exe" | Should -Be $true
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force        
+                
+            }
+            
+            It "Given invalid parameter -PostInstallScriptBlock <PostInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a PostInstallScriptblock
+                @{ PostInstallScript = {} }
+                @{ PostInstallScript = {   } }
+                @{ PostInstallScript = {*} }
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PostInstallScript)
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                                
+                # Run the command
+                New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe" -PostInstallScriptBlock $PostInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the executable hasn't been moved from the original directory
+                Test-Path -Path "TestDrive:\RawPackages\localpackage-1.0.exe" | Should -Be $true
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force        
+                
+            }
+            
+            
         }
         
         
@@ -210,22 +327,56 @@
         
     Context "Url Package Validation" {
         
-        It "Given valid parameters: Name <Name>; PackageLocation <Url>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+        It "Given valid parameters: Name <Name>; PackageLocation <Url>; InstallDir <InstallDir>; Note <Note>; PreInstallScriptblock <PreInstallScript>; PostInstallScriptblock <PostInstallScript>; It should correctly write the data" -TestCases @(
         
             # The different valid test cases for a url package
-            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""}
-            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""}
-            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"}
-            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"}
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = ""; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Name = "url-package"; PackageLocation = "https:\\website"; InstallDirectory = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
         
         ) {
             
             #Pass test case data into the test body
-            Param ($Name, $PackageLocation, [AllowEmptyString()]$InstallDir, [AllowEmptyString()]$Note)
+            Param ($Name, $PackageLocation, [AllowEmptyString()]$InstallDir, [AllowEmptyString()]$Note, $PreInstallScript, $PostInstallScript)
             
             
-            # Run the command
-            New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
+            if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+                
+            }elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript
+                
+            }elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note -PostInstallScriptblock $PostInstallScript
+            
+            }else {
+                
+                # Run the command
+                New-PMPackage -Name $Name -UrlPackage -PackageLocation $PackageLocation -InstallDirectory $InstallDir -Note $Note
+                
+            }
             
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
@@ -252,6 +403,10 @@
             }else {
                 $package.Note | Should -Be $Note
             }
+            
+            # Check that the scriptblocks have been properly added
+            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
+            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
             
             
             # Delete the package database file for next test
@@ -301,6 +456,51 @@
                 
             }
             
+            It "Given invalid parameter -PreInstallScriptBlock <PreInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a preinstallscriptblock
+                @{ PreInstallScript = {} }
+                @{ PreInstallScript = {   } }
+                @{ PreInstallScript = {*} }
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PreInstallScript)
+                               
+                # Run the command
+                New-PMPackage -Name "test-package" -UrlPackage -PackageLocation "https://somewhere" -PreInstallScriptBlock $PreInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                                
+                
+            }
+            
+            It "Given invalid parameter -PostInstallScriptBlock <PostInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a PostInstallScriptblock
+                @{ PostInstallScript = {} }
+                @{ PostInstallScript = {   } }
+                @{ PostInstallScript = {*} }
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PostInstallScript)
+                                
+                # Run the command
+                New-PMPackage -Name "test-package" -UrlPackage -PackageLocation "https://somwhere" -PostInstallScriptBlock $PostInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+            }
+            
             
         }
         
@@ -308,28 +508,68 @@
     
     Context "Portable Package Validation" {
         
-        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; It should correctly write the data" -TestCases @(
+        It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; PreInstallScriptBlock <PreInstallScript>; PostInstallScriptBlock <PostInstallScript>; It should correctly write the data" -TestCases @(
             
             # The different valid test cases for a portable package (archive, folder, and exe)
-            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""}
-            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
-            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""}
-            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
-            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""}
-            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"}
-                        
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {} }
+            
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {} }
+            
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello"} }
+            
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "zip"; FileName = "PortablePackage_1.3.zip"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = ""; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+            @{ Type = "folder"; FileName = "PortablePackage_1.0\"; InstallDir = "TestDrive:\"; Note = "A descriptive note"; PreInstallScript = {Write-Host "hello"}; PostInstallScript = {Write-Host "hello"} }
+                   
         ) {
             
             # Pass test case data into the test body
-            Param ($Type, $FileName, $InstallDir, [AllowEmptyString()]$Note)
+            Param ($Type, $FileName, $InstallDir, [AllowEmptyString()]$Note, $PreInstallScript, $PostInstallScript)
             
             # Copy the test packages from the git repo to the temporary drive
             New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
             Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
             
-            # Run the command
-            New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
-                        
+            if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+                
+            }elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PreInstallScriptblock $PreInstallScript
+                
+            }elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note -PostInstallScriptblock $PostInstallScript
+            
+            }else {
+                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory $InstallDir -Note $Note
+                
+            }
+                   
             # Check that the database has been created
             Test-Path -Path "$dataPath\packageDatabase.xml" | Should -Be $true     
             
@@ -355,6 +595,10 @@
                 $package.Note | Should -Be $Note
             }
             
+            # Check that the scriptblocks have been properly added
+            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
+            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
+                        
             # Test that there is only one package in the store
             $packageFiles = Get-ChildItem -Path "$dataPath\packages\"            
             $packageFiles.Count | Should -Be 1
@@ -482,6 +726,74 @@
                 Remove-Item -Path "$dataPath\packages" -Recurse -Force 
                 
             }
+            
+            It "Given invalid parameter -PreInstallScriptBlock <PreInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a preinstallscriptblock
+                @{ PreInstallScript = {} }
+                @{ PreInstallScript = {   } }
+                @{ PreInstallScript = {*} }
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PreInstallScript)
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\" -PreInstallScriptblock $PreInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the executable hasn't been moved from the original directory
+                Test-Path -Path "TestDrive:\RawPackages\portablepackage-1.0.exe" | Should -Be $true
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force        
+                
+            }
+            
+            It "Given invalid parameter -PostInstallScriptBlock <PostInstallScript>; It should stop and warn" -TestCases @(
+                
+                # The dfferent invalid test cases for a PostInstallScriptblock
+                @{ PostInstallScript = {} }
+                @{ PostInstallScript = {   } }
+                @{ PostInstallScript = {*} }
+                                
+                
+            ) {
+                
+                # Pass the test case data into the test case body
+                Param($PostInstallScript)
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                                
+                # Run the command
+                New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\" -PostInstallScriptBlock $PostInstallScript
+                                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Check that the executable hasn't been moved from the original directory
+                Test-Path -Path "TestDrive:\RawPackages\portablepackage-1.0.exe" | Should -Be $true
+                
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force        
+                
+            }
+            
             
         }
         
