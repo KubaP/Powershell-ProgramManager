@@ -46,7 +46,7 @@
 		'Set-PMPackage',
 		'Remove-PMPackage',
 		'Invoke-PMInstall',
-		'Export-Data',
+		'Export-PackageList',
 		'Import-PackageList',
 		'Write-Message'
 	)

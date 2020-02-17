@@ -32,11 +32,17 @@
         
         # Create a package entry so then test the removal of said package
         if ($Type -eq "Local") {
-            New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
+            
+            New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"       
+               
         }elseif ($Type -eq "Portable") {
+            
             New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
+            
         }elseif ($Type -eq "Url") {
-            New-PMPackage -Name $PackageName -UrlPackage -PackageLocation "https://somewhere"            
+            
+            New-PMPackage -Name $PackageName -UrlPackage -PackageLocation "https://somewhere"
+            
         }elseif ($Type -eq "Chocolatey") {
             #! TODO
         }
@@ -63,7 +69,7 @@
         
         
         # Delete the package store and database file for next test
-        Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+        Remove-Item -Path "$dataPath\packageDatabase.xml" -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "$dataPath\packages" -Recurse -Force
         Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
         
@@ -116,7 +122,7 @@
         Test-Path -Path "$Path\$PackageName\" | Should -Be $true
         
         # Delete the package store and database file for next test
-        Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+        Remove-Item -Path "$dataPath\packageDatabase.xml" -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "$dataPath\packages" -Recurse -Force
         Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
         Remove-Item -Path "TestDrive:\moveDir" -Recurse -Force

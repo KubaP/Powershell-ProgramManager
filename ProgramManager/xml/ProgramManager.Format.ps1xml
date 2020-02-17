@@ -44,17 +44,17 @@
 							</ListItem>
 							<ListItem>
 								<ItemSelectionCondition>
-									<ScriptBlock>$_.PreInstallScriptblock -ne $null</ScriptBlock>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PreInstallScriptblock) -eq $false</ScriptBlock>
 								</ItemSelectionCondition>
 								<Label>Pre-Install Script</Label>
-								<ScriptBlock>$_.PreInstallScriptblock.Script</ScriptBlock>
+								<ScriptBlock>$_.PreInstallScriptblock</ScriptBlock>
 							</ListItem>	
 							<ListItem>
 								<ItemSelectionCondition>
-									<ScriptBlock>$_.PostInstallScriptblock -ne $null</ScriptBlock>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PostInstallScriptblock) -eq $false</ScriptBlock>
 								</ItemSelectionCondition>
 								<Label>Post-Install Script</Label>
-								<ScriptBlock>$_.PostInstallScriptblock.Script</ScriptBlock>
+								<ScriptBlock>$_.PostInstallScriptblock</ScriptBlock>
 							</ListItem>
 						</ListItems>
 					</ListEntry>
@@ -117,17 +117,17 @@
 							</ListItem>
 							<ListItem>
 								<ItemSelectionCondition>
-									<ScriptBlock>$_.PreInstallScriptblock -ne $null</ScriptBlock>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PreInstallScriptblock) -eq $false</ScriptBlock>
 								</ItemSelectionCondition>
 								<Label>Pre-Install Script</Label>
-								<ScriptBlock>$_.PreInstallScriptblock.Script</ScriptBlock>
-							</ListItem>
+								<ScriptBlock>$_.PreInstallScriptblock</ScriptBlock>
+							</ListItem>	
 							<ListItem>
 								<ItemSelectionCondition>
-									<ScriptBlock>$_.PostInstallScriptblock -ne $null</ScriptBlock>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PostInstallScriptblock) -eq $false</ScriptBlock>
 								</ItemSelectionCondition>
 								<Label>Post-Install Script</Label>
-								<ScriptBlock>$_.PostInstallScriptblock.Script</ScriptBlock>
+								<ScriptBlock>$_.PostInstallScriptblock</ScriptBlock>
 							</ListItem>
 						</ListItems>
 					</ListEntry>

@@ -81,9 +81,10 @@
     $property.Value = $PropertyValue
         
     if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Edit the package `'$PackageName`'")){
-		
-		# Export-out (modified) list to xml file
-		Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
+        
+        # Export-out package list to xml file
+        Export-PackageList -PackageList $packageList
+        
 	}
     
     

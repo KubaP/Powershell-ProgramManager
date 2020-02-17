@@ -28,7 +28,7 @@
         @{ PackageName = "portable-package1"; Type = "PortablePackage"; IsInstalled = "false"; Url = ""; ExecutableName = ""; ExecutableType = ""; InstallDir = "C:\"; Note = ""}
         @{ PackageName = "portable-package2"; Type = "PortablePackage"; IsInstalled = "false"; Url = ""; ExecutableName = ""; ExecutableType = ""; InstallDir = "C:\"; Note = "description"}
         @{ PackageName = "portable-package3"; Type = "PortablePackage"; IsInstalled = "true"; Url = ""; ExecutableName = ""; ExecutableType = ""; InstallDir = "C:\"; Note = ""}
-        
+                
     ) {
         
         # Pass test case data into the test body

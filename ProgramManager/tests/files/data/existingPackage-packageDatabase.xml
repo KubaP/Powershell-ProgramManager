@@ -1,156 +1,226 @@
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <Obj RefId="0">
     <TN RefId="0">
-      <T>ProgramManager.Package</T>
-      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Collections.Generic.List`1[[System.Management.Automation.PSObject, System.Management.Automation, Version=6.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
       <T>System.Object</T>
     </TN>
-    <MS>
-      <S N="Name">existing-local-package</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-    </MS>
-  </Obj>
-  <Obj RefId="1">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">existing-package</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="Url">https://</S>
-    </MS>
-  </Obj>
-  <Obj RefId="2">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">local-package1</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-    </MS>
-  </Obj>
-  <Obj RefId="3">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">local-package2</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-      <S N="InstallDirectory">C:\</S>
-    </MS>
-  </Obj>
-  <Obj RefId="4">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">local-package3</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-      <S N="Note">description</S>
-    </MS>
-  </Obj>
-  <Obj RefId="5">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">local-package4</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-      <S N="InstallDirectory">C:\</S>
-      <S N="Note">description</S>
-    </MS>
-  </Obj>
-  <Obj RefId="6">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">local-package5</S>
-      <S N="Type">LocalPackage</S>
-      <B N="IsInstalled">true</B>
-      <S N="ExecutableName">localpackage-1.0.exe</S>
-      <S N="ExecutableType">.exe</S>
-    </MS>
-  </Obj>
-  <Obj RefId="7">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">url-package1</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="Url">https://</S>
-    </MS>
-  </Obj>
-  <Obj RefId="8">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">url-package2</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="Url">https://</S>
-      <S N="InstallDirectory">C:\</S>
-    </MS>
-  </Obj>
-  <Obj RefId="9">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">url-package3</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="Url">https://</S>
-      <S N="Note">description</S>
-    </MS>
-  </Obj>
-  <Obj RefId="10">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">url-package4</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="Url">https://</S>
-      <S N="InstallDirectory">C:\</S>
-      <S N="Note">description</S>
-    </MS>
-  </Obj>
-  <Obj RefId="11">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">url-package5</S>
-      <S N="Type">UrlPackage</S>
-      <B N="IsInstalled">true</B>
-      <S N="Url">https://</S>
-    </MS>
-  </Obj>
-  <Obj RefId="12">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">portable-package1</S>
-      <S N="Type">PortablePackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="InstallDirectory">C:\</S>
-    </MS>
-  </Obj>
-  <Obj RefId="13">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">portable-package2</S>
-      <S N="Type">PortablePackage</S>
-      <B N="IsInstalled">false</B>
-      <S N="InstallDirectory">C:\</S>
-      <S N="Note">description</S>
-    </MS>
-  </Obj>
-  <Obj RefId="14">
-    <TNRef RefId="0" />
-    <MS>
-      <S N="Name">portable-package3</S>
-      <S N="Type">PortablePackage</S>
-      <B N="IsInstalled">true</B>
-      <S N="InstallDirectory">C:\</S>
-    </MS>
+    <LST>
+      <Obj RefId="1">
+        <TN RefId="1">
+          <T>ProgramManager.Package</T>
+          <T>System.Management.Automation.PSCustomObject</T>
+          <T>System.Object</T>
+        </TN>
+        <MS>
+          <S N="Name">existing-local-package</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+        </MS>
+      </Obj>
+      <Obj RefId="2">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">existing-package</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+        </MS>
+      </Obj>
+      <Obj RefId="3">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package1</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+        </MS>
+      </Obj>
+      <Obj RefId="4">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package2</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+          <S N="InstallDirectory">C:\</S>
+        </MS>
+      </Obj>
+      <Obj RefId="5">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package3</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+          <S N="Note">description</S>
+        </MS>
+      </Obj>
+      <Obj RefId="6">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package4</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+          <S N="InstallDirectory">C:\</S>
+          <S N="Note">description</S>
+        </MS>
+      </Obj>
+      <Obj RefId="7">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package5</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">true</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+        </MS>
+      </Obj>
+      <Obj RefId="8">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package1</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+        </MS>
+      </Obj>
+      <Obj RefId="9">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package2</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+          <S N="InstallDirectory">C:\</S>
+        </MS>
+      </Obj>
+      <Obj RefId="10">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package3</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+          <S N="Note">description</S>
+        </MS>
+      </Obj>
+      <Obj RefId="11">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package4</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+          <S N="InstallDirectory">C:\</S>
+          <S N="Note">description</S>
+        </MS>
+      </Obj>
+      <Obj RefId="12">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package5</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">true</B>
+          <S N="Url">https://</S>
+        </MS>
+      </Obj>
+      <Obj RefId="13">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">portable-package1</S>
+          <S N="Type">PortablePackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="InstallDirectory">C:\</S>
+        </MS>
+      </Obj>
+      <Obj RefId="14">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">portable-package2</S>
+          <S N="Type">PortablePackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="InstallDirectory">C:\</S>
+          <S N="Note">description</S>
+        </MS>
+      </Obj>
+      <Obj RefId="15">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">portable-package3</S>
+          <S N="Type">PortablePackage</S>
+          <B N="IsInstalled">true</B>
+          <S N="InstallDirectory">C:\</S>
+        </MS>
+      </Obj>
+      <Obj RefId="16">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package6</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+          <S N="PreInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+      <Obj RefId="17">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">local-package7</S>
+          <S N="Type">LocalPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="ExecutableName">localpackage-1.0.exe</S>
+          <S N="ExecutableType">.exe</S>
+          <S N="PostInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+      <Obj RefId="18">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package6</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+          <S N="PreInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+      <Obj RefId="19">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">url-package7</S>
+          <S N="Type">UrlPackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="Url">https://</S>
+          <S N="PostInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+      <Obj RefId="20">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">portable-package4</S>
+          <S N="Type">PortablePackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="InstallDirectory">C:\</S>
+          <S N="PreInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+      <Obj RefId="21">
+        <TNRef RefId="1" />
+        <MS>
+          <S N="Name">portable-package5</S>
+          <S N="Type">PortablePackage</S>
+          <B N="IsInstalled">false</B>
+          <S N="InstallDirectory">C:\</S>
+          <S N="PostInstallScriptblock">Write-Host "hello"</S>
+        </MS>
+      </Obj>
+    </LST>
   </Obj>
 </Objs>

@@ -374,8 +374,8 @@
 		# Add new PMPackage to list
 		$packageList.Add($package)
 			
-		# Export-out list to xml file
-		Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
+		# Export-out package list to xml file
+		Export-PackageList -PackageList $packageList
 	}
 	
 	

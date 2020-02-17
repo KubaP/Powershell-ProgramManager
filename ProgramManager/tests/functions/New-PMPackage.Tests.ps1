@@ -112,8 +112,8 @@
             }
             
             # Check that the scriptblocks have been properly added
-            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
-            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PreInstallScriptBlock) -like $PreInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PostInstallScriptBlock) -like $PostInstallScript) | Should -Be $true
                         
             # Test that there is only one package in the store
             $packageFiles = Get-ChildItem -Path "$dataPath\packages\"            
@@ -405,8 +405,8 @@
             }
             
             # Check that the scriptblocks have been properly added
-            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
-            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PreInstallScriptBlock) -like $PreInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PostInstallScriptBlock) -like $PostInstallScript) | Should -Be $true
             
             
             # Delete the package database file for next test
@@ -596,8 +596,8 @@
             }
             
             # Check that the scriptblocks have been properly added
-            ($package.PreInstallScriptBlock.Script -like $PreInstallScript) | Should -Be $true
-            ($package.PostInstallScriptBlock.Script -like $PostInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PreInstallScriptBlock) -like $PreInstallScript) | Should -Be $true
+            ([Scriptblock]::Create($package.PostInstallScriptBlock) -like $PostInstallScript) | Should -Be $true
                         
             # Test that there is only one package in the store
             $packageFiles = Get-ChildItem -Path "$dataPath\packages\"            

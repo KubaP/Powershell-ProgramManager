@@ -120,8 +120,18 @@
 		# Remove the PMPackage from the list
 		$packageList.Remove($package) | Out-Null
 		
-		# Export-out (modified) list to xml file
-		Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"
+		#! TODO: figure out better way of exporting empty packagelist without deleting actual xml file
+		if ($packageList.Count -eq 0) {
+			
+			# If there are no more packages, then delete the database file
+			Remove-Item -Path "$script:DataPath\packageDatabase.xml" -Force
+			
+		}else {
+				
+			# Export-out package list to xml file
+			Export-PackageList -PackageList $packageList
+			
+		}
 	}	
 	
 }
