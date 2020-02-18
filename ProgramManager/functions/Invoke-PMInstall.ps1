@@ -42,7 +42,7 @@
 	}else {
         
         # The xml database doesn't exist, abort
-        Write-Message -Message "The database file doesn't exist. Run Add-PMPackage to initialise it." -DisplayWarning
+        Write-Message -Message "The database file doesn't exist. Run New-PMPackage to initialise it." -DisplayWarning
         return
         
     }
@@ -51,8 +51,9 @@
     foreach ($name in $PackageName) {
         
         # Check if the package has a pre-install scriptblock and run it
-        if ($null -ne $package.PreInstallScriptblock) {
-            $package.PreInstallScriptblock()
+        if ([System.String]::IsNullOrWhiteSpace($package.PreInstallScriptblock) -eq $false) {
+            $scriptblock = [scriptblock]::Create($prackage.PreInstallScriptblock)
+            Invoke-Command -ScriptBlock $scriptblock
         }
     
         # Get the package by name
@@ -151,8 +152,9 @@
         }
         
         # Check if the package has a post-install scriptblock and run it
-        if ($null -ne $package.PostInstallScriptblock) {
-            $package.PostInstallScriptblock()
+        if ([System.String]::IsNullOrWhiteSpace($package.PostInstallScriptblock) -eq $false) {
+            $scriptblock = [scriptblock]::Create($prackage.PostInstallScriptblock)
+            Invoke-Command -ScriptBlock $scriptblock
         }
         
         # Set the installed flag for the package
@@ -160,8 +162,9 @@
     
     }
     
-    # Export-out package list (with modified package properties) to xml file
-	Export-Data -Object $packageList -Path "$script:DataPath\packageDatabase.xml" -Type "Clixml"	
+    
+    # Export-out package list to xml file
+    Export-PackageList -PackageList $packageList	
             
     
 }

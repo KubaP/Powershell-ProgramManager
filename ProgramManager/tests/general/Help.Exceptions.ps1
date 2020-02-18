@@ -1,6 +1,6 @@
 ﻿# List of functions that should be ignored
 $global:FunctionHelpTestExceptions = @(
-    
+    'New-PMPackage' # Fails validation on InstallDirectory parameter because it has varying Mandatory requirements based on different parameter sets. Awaiting fix
 )
 
 <#
@@ -22,5 +22,5 @@ $global:HelpTestEnumeratedArrays = @(
   "Get-DbaCmObject"       = @("DoNotUse")
 #>
 $global:HelpTestSkipParameterType = @{
-    
+  "New-PMPackage" = @("InstallDirectory")
 }

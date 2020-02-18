@@ -37,13 +37,16 @@
 	# TypesToProcess = @('xml\ProgramManager.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
+	FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @(
-		'Add-PMPackage',
+		'New-PMPackage',
+		'Get-PMPackage',
+		'Set-PMPackage',
+		'Remove-PMPackage',
 		'Invoke-PMInstall',
-		'Export-Data',
+		'Export-PackageList',
 		'Import-PackageList',
 		'Write-Message'
 	)

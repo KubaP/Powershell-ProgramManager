@@ -34,17 +34,9 @@
 				# Copy the properties from the Deserialized object into the new one
 				foreach ($property in $obj.psobject.Properties) {
 					
-					if ($property.Name -eq "PreInstallScriptblock" -or $property.Name -eq "PostInstallScriptblock") {
-						
-						# Import serialised scriptblocks as scriptmethods rather than note properties
-						$existingPackage | Add-Member -Type ScriptMethod -Name $property.Name -Value $([Scriptblock]::Create($property.Value))
-						
-					}else {
-						
-						# Otherwise just copy the note property values over
-						$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
-						
-					}
+					# Copy over the deserialised object properties over to new object
+					$existingPackage | Add-Member -Type NoteProperty -Name $property.Name -Value $property.Value
+					
 				}
 				
 				$packageList.Add($existingPackage)
@@ -54,7 +46,7 @@
         
     }
 	
-	# Return the list object; -NoEnumerate is used to avoid powershell converting list to object[] array
+	# Return the list object; -NoEnumerate is used to avoid powershell converting list to Object[] array
     Write-Output $packageList -NoEnumerate
     
 }
