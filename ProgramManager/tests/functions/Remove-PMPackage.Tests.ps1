@@ -16,9 +16,9 @@
         # The different valid test cases for a local package (exe and msi)
         @{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.exe" }
         @{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.msi" }
-        @{ Type = "Portable"; PackageName = "protable-package"; FileName = "PortablePackage_1.3.zip" }
-        @{ Type = "Portable"; PackageName = "protable-package"; FileName = "portablepackage-1.0.exe" }
-        @{ Type = "Portable"; PackageName = "protable-package"; FileName = "PortablePackage_1.0\" }
+        @{ Type = "Portable"; PackageName = "portable-package"; FileName = "PortablePackage_1.3.zip" }
+        @{ Type = "Portable"; PackageName = "portable-package"; FileName = "portablepackage-1.0.exe" }
+        @{ Type = "Portable"; PackageName = "portable-package"; FileName = "PortablePackage_1.0\" }
         @{ Type = "Url"; PackageName = "url-package"; FileName = "" }
         
     ) {
@@ -44,7 +44,9 @@
             New-PMPackage -Name $PackageName -UrlPackage -PackageLocation "https://somewhere"
             
         }elseif ($Type -eq "Chocolatey") {
-            #! TODO
+            
+            # TODO: implement chocolatey support
+            
         }
         
         # Read the database back in to ensure the package was added properly

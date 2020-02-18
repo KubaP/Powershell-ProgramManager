@@ -120,7 +120,7 @@
 		# Remove the PMPackage from the list
 		$packageList.Remove($package) | Out-Null
 		
-		#! TODO: figure out better way of exporting empty packagelist without deleting actual xml file
+		# TODO: figure out better way of exporting empty packagelist without deleting actual xml file
 		if ($packageList.Count -eq 0) {
 			
 			# If there are no more packages, then delete the database file
