@@ -52,8 +52,11 @@
         if ([System.String]::IsNullOrWhiteSpace($package.PreInstallScriptblock) -eq $false) {
             
             if ($PSCmdlet.ShouldProcess("pre-installation scriptblock from package $name", "Execute command")) {
+                
+                # Convert the string into a scriptblock and execute
                 $scriptblock = [scriptblock]::Create($package.PreInstallScriptblock)
                 Invoke-Command -ScriptBlock $scriptblock
+                
             }
             
         }
@@ -69,9 +72,11 @@
             $extension = $regex.Groups[1].Value
             
             if ($PSCmdlet.ShouldProcess("installer file from url", "Download")){
+                
                 # Download the installer from the url
                 New-Item -ItemType Directory -Path "$script:DataPath\packages\$($package.Name)\" | Out-Null
                 Invoke-WebRequest -Uri $url -OutFile "$script:DataPath\packages\$($package.Name)\installer.$extension"
+                
             }
             
             # Set executable properties in the package object to allow later code to run correctly
@@ -86,8 +91,10 @@
             if ($package.ExecutableType -eq ".exe") {
                 
                 if ($PSCmdlet.ShouldProcess(".exe installer", "Start process")){
+                    
                     # Start the exe installer
                     Start-Process -FilePath "$script:DataPath\packages\$($package.Name)\$($package.ExecutableName)" -Wait
+                    
                 }
                 
             }elseif ($package.ExecutableType -eq ".msi") {
@@ -132,13 +139,15 @@
                 }
                 
                 if ($PSCmdlet.ShouldProcess("msiexec installer", "Start process")) {
+                    
                     # Start msiexec and wait until it's finished
                     $process = New-Object System.Diagnostics.Process
                     $process.StartInfo = $processStartupInfo
                     $process.Start() | Out-Null
                     
                     $process.WaitForExit()
-                    $process.Dispose()    
+                    $process.Dispose()  
+                      
                 }
                 
             }
@@ -152,8 +161,10 @@
             }
             
             if ($PSCmdlet.ShouldProcess("Package $name files", "Copy to the installation directory")) {
+                
                 # Copy package folder to install directory
                 Copy-Item -Path "$script:DataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
+                
             }
             
         }elseif ($package.Type -eq "ChocolateyPackage") {
@@ -184,8 +195,11 @@
         if ([System.String]::IsNullOrWhiteSpace($package.PostInstallScriptblock) -eq $false) {
             
             if ($PSCmdlet.ShouldProcess("post-installation scriptblock from package $name", "Execute command")) {
+                
+                # Convert string to scriptblock and execute
                 $scriptblock = [scriptblock]::Create($package.PostInstallScriptblock)
                 Invoke-Command -ScriptBlock $scriptblock
+                
             }
             
         }
