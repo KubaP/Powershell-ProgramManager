@@ -252,6 +252,8 @@
                                 
             }
             
+            # TODO: Check for portable packages with invalid install directory
+            
         }
         
     }
@@ -297,7 +299,5 @@
         }
         
     }  
-    
-    # TODO: replace every mock assertion with -exactly -scope it
     
 }
