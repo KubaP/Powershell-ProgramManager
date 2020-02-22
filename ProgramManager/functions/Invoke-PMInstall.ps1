@@ -9,6 +9,12 @@
     .PARAMETER PackageName
         The name of the ProgramManager package to install.
         
+    .PARAMETER Confirm
+		If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+		
+	.PARAMETER WhatIf
+		If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+	
     .EXAMPLE
         PS C:\> Invoke-PMInstall -Name "chrome"
         
@@ -19,6 +25,7 @@
     Param (
         
         [Parameter(Mandatory = $true, Position = 0)]
+        [AllowEmptyString()]
         [string[]]
         $PackageName
 
@@ -41,8 +48,14 @@
     # Iterate through all passed package names
     foreach ($name in $PackageName) {
         
+        # Check that the name is not empty
+        if ([System.String]::IsNullOrWhiteSpace($name) -eq $true) {
+            Write-Message -Message "The name cannot be empty" -DisplayWarning
+            return
+        }
+        
         # Get the package by name
-        $package = $packageList | Where-Object { $_.Name -eq $name }
+        $package = $packageList | Where-Object { $_.Name -eq $name }        
         if ($null -eq $package) {
             Write-Message -Message "There is no package called: $Name" -DisplayWarning
             return
@@ -130,24 +143,12 @@
                     Arguments = "$script:DataPath\packages\$($package.Name)\$($package.ExecutableName) " + $dislayArgument + $logArgument + $paramArgument
                     UseShellExecute = $false
                 }#>
-                
-                # Set the msiexec arguments
-                $processStartupInfo = New-Object System.Diagnostics.ProcessStartInfo -Property @{
-                    FileName = "msiexec.exe"
-                    Arguments = "/i $script:DataPath\packages\$($package.Name)\$($package.ExecutableName) /qf /l*v `"$script:DataPath\log-$($package.Name)-$(Get-Date -Format "yyyy-MM-dd HH:mm").txt`""
-                    UseShellExecute = $false
-                }
-                
+                                                
                 if ($PSCmdlet.ShouldProcess("msiexec installer", "Start process")) {
                     
-                    # Start msiexec and wait until it's finished
-                    $process = New-Object System.Diagnostics.Process
-                    $process.StartInfo = $processStartupInfo
-                    $process.Start() | Out-Null
+                    # Start the msiexec process
+                    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $script:DataPath\packages\$($package.Name)\$($package.ExecutableName) /qf /l*v `"$script:DataPath\log-$($package.Name)-$(Get-Date -Format "yyyy-MM-dd HH:mm").txt`"" -Wait
                     
-                    $process.WaitForExit()
-                    $process.Dispose()  
-                      
                 }
                 
             }
