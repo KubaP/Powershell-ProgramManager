@@ -7,9 +7,6 @@
     & (Get-Module ProgramManager) { $script:DataPath = "TestDrive:\ProgramManager" }
     # For use within the test script, since no access to module- $script:DataPath
     $dataPath = "TestDrive:\ProgramManager"
-        
-    Write-Verbose "TestDrive is: $((Get-PSDrive TestDrive).Root)"
-    Write-Verbose "DataPath is: $($dataPath)"
     
     It "Given valid parameters: PackageName <PackageName>; of type <Type> <FileName>; It should correctly remove data and delete files" -TestCases @(
         
@@ -161,7 +158,7 @@
             Remove-PMPackage -PackageName $PackageName 
             
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                 $DisplayWarning -eq $true
             }
             
@@ -194,11 +191,11 @@
                         
             # Check that the warning message was properly sent
             if ([System.String]::IsNullOrWhiteSpace($Path) -eq $true) {
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
             }else {
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayError -eq $true
                 }
             }
@@ -239,7 +236,7 @@
             Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
                         
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Scope It -ParameterFilter { # TODO:  -Exactly flag was causing issues; fix
                 $DisplayWarning -eq $true
             }
             
@@ -274,7 +271,7 @@
             Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
                         
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                 $DisplayWarning -eq $true
             }
             

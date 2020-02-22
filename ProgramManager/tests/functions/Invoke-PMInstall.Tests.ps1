@@ -7,9 +7,6 @@
     & (Get-Module ProgramManager) { $script:DataPath = "TestDrive:\ProgramManager" }
     # For use within the test script, since no access to module- $script:DataPath
     $dataPath = "TestDrive:\ProgramManager"
-        
-    Write-Verbose "TestDrive is: $((Get-PSDrive TestDrive).Root)"
-    Write-Verbose "DataPath is: $($dataPath)"
     
     Context "Local Package Validation" {
         

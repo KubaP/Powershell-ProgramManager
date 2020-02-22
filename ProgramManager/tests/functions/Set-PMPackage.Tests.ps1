@@ -7,9 +7,6 @@
     & (Get-Module ProgramManager) { $script:DataPath = "TestDrive:\ProgramManager" }
     # For use within the test script, since no access to module- $script:DataPath
     $dataPath = "TestDrive:\ProgramManager"
-        
-    Write-Verbose "TestDrive is: $((Get-PSDrive TestDrive).Root)"
-    Write-Verbose "DataPath is: $($dataPath)"
     
     It "Given valid parameters: PackageName <PackageName>; PropertyName <PropertyName>; PropertyValue <PropertyValue>; It should correctly edit the data" -TestCases @(
         
@@ -82,7 +79,7 @@
             Set-PMPackage -PackageName $PackageName -PropertyName "" -PropertyValue ""
             
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                 $DisplayWarning -eq $true
             }
             
@@ -116,7 +113,7 @@
             Set-PMPackage -PackageName "existing-package" -PropertyName $PropertyName -PropertyValue ""
             
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                 $DisplayWarning -eq $true
             }
             

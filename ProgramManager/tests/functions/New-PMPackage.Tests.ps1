@@ -7,10 +7,7 @@
     & (Get-Module ProgramManager) { $script:DataPath = "TestDrive:\ProgramManager" }
     # For use within the test script, since no access to module- $script:DataPath
     $dataPath = "TestDrive:\ProgramManager"
-        
-    Write-Verbose "TestDrive is: $((Get-PSDrive TestDrive).Root)"
-    Write-Verbose "DataPath is: $($dataPath)"
-        
+    
     Context "Local Package Validation" {
         
         It "Given valid parameters: PackageLocation TestDrive:\RawPackages\<FileName>; InstallDir <InstallDir>; Note <Note>; PreInstallScriptblock <PreInstallScript>; PostInstallScriptblock <PostInstallScript>; It should correctly write the data" -TestCases @(
@@ -168,7 +165,7 @@
                 New-PMPackage -Name $Name -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe"
                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -234,7 +231,7 @@
                 New-PMPackage -Name "test-package" -LocalPackage -PackageLocation $Path
                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -267,7 +264,7 @@
                 New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe" -PreInstallScriptblock $PreInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -300,7 +297,7 @@
                 New-PMPackage -Name "test-package" -LocalPackage -PackageLocation "TestDrive:\RawPackages\localpackage-1.0.exe" -PostInstallScriptBlock $PostInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -446,7 +443,7 @@
                 New-PMPackage -Name $Name -UrlPackage -PackageLocation "https://somewhere"
                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -472,7 +469,7 @@
                 New-PMPackage -Name "test-package" -UrlPackage -PackageLocation "https://somewhere" -PreInstallScriptBlock $PreInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                                 
@@ -495,7 +492,7 @@
                 New-PMPackage -Name "test-package" -UrlPackage -PackageLocation "https://somwhere" -PostInstallScriptBlock $PostInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -660,7 +657,7 @@
                 New-PMPackage -Name $Name -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\"
                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -714,7 +711,7 @@
                 New-PMPackage -Name "test-package" -PortablePackage -PackageLocation $Path -InstallDirectory "TestDrive:\"
                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -747,7 +744,7 @@
                 New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\" -PreInstallScriptblock $PreInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
@@ -781,7 +778,7 @@
                 New-PMPackage -Name "test-package" -PortablePackage -PackageLocation "TestDrive:\RawPackages\portablepackage-1.0.exe" -InstallDirectory "TestDrive:\" -PostInstallScriptBlock $PostInstallScript
                                 
                 # Check that the warning message was properly sent
-                Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                     $DisplayWarning -eq $true
                 }
                 
