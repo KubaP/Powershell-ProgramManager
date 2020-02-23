@@ -6,11 +6,7 @@
     New-Item -ItemType Directory -Path "TestDrive:\ProgramManager\"
     & (Get-Module ProgramManager) { $script:DataPath = "TestDrive:\ProgramManager" }
     # For use within the test script, since no access to module- $script:DataPath
-    $dataPath = "TestDrive:\ProgramManager"
-        
-    Write-Verbose "TestDrive is: $((Get-PSDrive TestDrive).Root)"
-    Write-Verbose "DataPath is: $($dataPath)"
-    
+    $dataPath = "TestDrive:\ProgramManager"    
     
     It "Given valid parameters: PackageName <PackageName>; It should correctly output object" -TestCases @(
         
@@ -111,7 +107,7 @@
             Get-PMPackage -PackageName $PackageName
             
             # Check that the warning message was properly sent
-            Assert-MockCalled Write-Message -Times 1 -ParameterFilter {
+            Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
                 $DisplayWarning -eq $true
             }
             

@@ -79,7 +79,7 @@
     
     # Set the value to the newly specified value
     $property.Value = $PropertyValue
-        
+    
     if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Edit the package `'$PackageName`'")){
         
         # Export-out package list to xml file

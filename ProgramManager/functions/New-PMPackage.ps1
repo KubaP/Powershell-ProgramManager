@@ -157,24 +157,30 @@
 	
 	# Check that the scriptblocks actually contain code
 	if ($null -ne $PreInstallScriptblock) {
+		
 		if ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $true) {
 			Write-Message -Message "The Pre-Install Scriptblock cannot be empty" -DisplayWarning
 			return
 		}
+		
 		if ($PreInstallScriptblock.ToString() -like "``*") {
 			Write-Message -Message "The Pre-Install Scriptblock cannot just be '*'" -DisplayWarning
 			return
-		}	
+		}
+			
 	}
 	if ($null -ne $PostInstallScriptblock) {
+		
 		if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $true) {
 			Write-Message -Message "The Post-Install Scriptblock cannot be empty" -DisplayWarning
 			return
-		}	
+		}
+		
 		if ($PostInstallScriptblock.ToString() -like "``*") {
 			Write-Message -Message "The Post-Install Scriptblock cannot just be '*'" -DisplayWarning
 			return
-		}	
+		}
+		
 	}
 	
 	# Create PMpackage object	
@@ -189,8 +195,10 @@
 	if ((Test-Path -Path "$script:DataPath\packages\") -eq $false) {
 		
 		if ($PSCmdlet.ShouldProcess("$script:DataPath\packages", "Create the package store")) {
+			
 			# The packages subfolder doesn't exist. Create it to avoid errors with Move-Item
-			New-Item -ItemType Directory -Path "$script:DataPath\packages\" -Confirm:$false | Out-Null	
+			New-Item -ItemType Directory -Path "$script:DataPath\packages\" -Confirm:$false | Out-Null
+				
 		}
 		
 	}
@@ -229,9 +237,11 @@
 		}
 		
 		if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the installer to the package store")) {
+			
 			# Move the executable to the package store
 			New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 			Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($executable.Name)"	-Confirm:$false
+			
 		}
 		
 		# Add executable properties
@@ -278,8 +288,10 @@
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
 			
 			if ($PSCmdlet.ShouldProcess("Folder: $PackageLocation", "Move the package container to the package store")) {
+				
 				# This is a folder so can be moved straight to the package store
 				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name" -Confirm:$false
+				
 			}
 			
 		}else {
@@ -291,6 +303,7 @@
 			if ($file.Extension -eq ".zip" -or $file.Extension -eq ".tar") {
 				
 				if ($PSCmdlet.ShouldProcess("Archive: $PackageLocation", "Extract the archive to temporary path")){
+					
 					# Extract archive to parent location and delete the original
 					# Must set do this trickery to stop confirmation prompts, since passing -Confirm:$false to Expand-Archive
 					# doen't propogate that to the individual New-Item -Directory commands, and each one would generate a prompt
@@ -299,6 +312,7 @@
 					Expand-Archive -Path $PackageLocation -DestinationPath "$script:DataPath\temp"
 					$ConfirmPreference = $originalConfirmPrefrence
 					Remove-Item -Path $PackageLocation -Force -Confirm:$false
+					
 				}
 				
 				# Set the current directory to the extracted-archive location, initialising for the do-loop
@@ -314,26 +328,28 @@
 					# If there is only a single child and its a folder, move down the tree
 					# Otherwise move the item to the package store
 					if ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true) {
+						
 						$currentDir = $children.FullName
+						
 					}else {
 						
 						if ($PSCmdlet.ShouldProcess("Folder: $currentDir", "Move the package container to the package store")) {
 							Move-Item -Path $currentDir -Destination "$script:DataPath\packages\$Name" -Confirm:$false
-						}				
+						}
 						
 					}
 					
 				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
 				
 				Remove-Item -Path "$script:DataPath\temp\" -Recurse -Force -Confirm:$false
-														
+				
 			}elseif ($file.Extension -eq ".exe") {
 				
 				if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the executable to the package store")) {
 					# This is a portable package with only a single exe file				
 					New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 					Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)" -Confirm:$false
-				}				
+				}
 				
 			}else {
 				
@@ -371,11 +387,13 @@
 	
 	
 	if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Add the package `'$Name`'")) {
+		
 		# Add new PMPackage to list
 		$packageList.Add($package)
-			
+		
 		# Export-out package list to xml file
 		Export-PackageList -PackageList $packageList
+		
 	}
 	
 	

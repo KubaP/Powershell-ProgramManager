@@ -4,44 +4,57 @@
         Installs a ProgramManager package.
         
     .DESCRIPTION
-        Installs a ProgramManager package from the database.
+        Installs a ProgramManager package which has been earlier added to the database.
         
     .PARAMETER PackageName
         The name of the ProgramManager package to install.
         
-    .PARAMETER ShowUI
-        A switch to show the installation UI for msi installers.
-        This does not affect exe installers since they have no standard switches.
-        This does not affect portable packages or chocolatey packages either.
+    .PARAMETER Confirm
+		If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+		
+	.PARAMETER WhatIf
+		If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+		
+    .EXAMPLE
+        PS C:\> Invoke-PMInstall -Name "notepad"
+        
+        This command will install the package named "notepad", executing any scriptblocks along with it.
         
     .EXAMPLE
-        PS C:\> Invoke-PMInstall -Name "chrome"
+        PS C:\> Get-PMPackage "notepad" | Invoke-PMInstall
         
-        Will install the package named "chrome" found within the database.
+        This command supports passing in a ProgramManager.Package object, by retrieving it using Get-PMPacakge for example.
+        This command will install the package named "notepad", executing any scriptblocks along with it.
+        
+    .INPUTS
+        System.String[]
+        
+    .OUTPUTS
+        None
+        
     #>
     
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
     Param (
-        [Parameter(Mandatory = $true, Position = 0)]
-        [string[]]
-        $PackageName,
         
-        [Parameter(Position = 1)]
-        [switch]
-        $ShowUI
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [Alias("Name")]
+        [string[]]
+        $PackageName
         
     )
-            
     
-	# Check if the xml database  exists
+	# Check if the xml database exists
     if ((Test-Path -Path "$script:DataPath\packageDatabase.xml") -eq $true) {
         
-		# Load all existing PMPrograms into a list
+		# Load all existing PMPackages into a list
+        Write-Verbose "Loading existing packages from database"
 		$packageList = Import-PackageList
 		
 	}else {
         
-        # The xml database doesn't exist, abort
+        # The xml database doesn't exist; warn user
         Write-Message -Message "The database file doesn't exist. Run New-PMPackage to initialise it." -DisplayWarning
         return
         
@@ -50,48 +63,85 @@
     # Iterate through all passed package names
     foreach ($name in $PackageName) {
         
-        # Check if the package has a pre-install scriptblock and run it
-        if ([System.String]::IsNullOrWhiteSpace($package.PreInstallScriptblock) -eq $false) {
-            $scriptblock = [scriptblock]::Create($prackage.PreInstallScriptblock)
-            Invoke-Command -ScriptBlock $scriptblock
-        }
-    
-        # Get the package by name
-        $package = $packageList | Where-Object { $_.Name -eq $name }
-        if ($null -eq $package) {
-            Write-Message -Message "There is no package called: $Name" -DisplayWarning
+        Write-Verbose "Installing package:{$name}"
+        
+        # Check that the name is not empty
+        if ([System.String]::IsNullOrWhiteSpace($name) -eq $true) {
+            
+            Write-Message -Message "The name cannot be empty" -DisplayWarning
             return
+            
         }
         
-        # If its a url package, download it and set some properties to allow the installation code to run
+        # Get the package by name
+        Write-Verbose "Retrieving the package object"
+        $package = $packageList | Where-Object { $_.Name -eq $name }
+        # Warn the user if the name is invalid
+        if ($null -eq $package) {
+            
+            Write-Message -Message "There is no package called: $Name" -DisplayWarning
+            return
+            
+        }
+        
+        # Check if the package has a pre-install scriptblock to run
+        Write-Verbose "Checking for pre-install scriptblock"
+        if ([System.String]::IsNullOrWhiteSpace($package.PreInstallScriptblock) -eq $false) {
+            
+            if ($PSCmdlet.ShouldProcess("pre-install scriptblock from package:{$name}", "Execute scriptblock")) {
+                
+                # Convert the string into a scriptblock and execute
+                Write-Verbose "Coverting scriptblock and executing it"
+                $scriptblock = [scriptblock]::Create($package.PreInstallScriptblock)
+                Invoke-Command -ScriptBlock $scriptblock
+                
+            }
+            
+        }
+        
+        # If the package is a url-package, download it and define extra properties to allow the installation code to run correctly
         if ($package.Type -eq "UrlPackage") {
             
-            # Get the absolute url after any redirection
+            # Get the absolute url, after any redirection, which points to the actual file
+            Write-Verbose "Getting absolute url from link given"
             $url = [System.Net.HttpWebRequest]::Create($package.Url).GetResponse().ResponseUri.AbsoluteUri
             
             # Get the file extension in order to save it correctly
             $regex = [regex]::Match($url, ".*\.(.*)")
             $extension = $regex.Groups[1].Value
             
-            # Download the installer from the url    
-            Invoke-WebRequest -Uri $url -OutFile "$script:DataPath\$($package.Name)\installer.$extension"
+            if ($PSCmdlet.ShouldProcess("installer at url:$url", "Download")){
+                
+                # Download the installer from the url
+                Write-Verbose "Downloading installer to \packages\$($package.Name)"
+                New-Item -ItemType Directory -Path "$script:DataPath\packages\$($package.Name)\" | Out-Null
+                Invoke-WebRequest -Uri $url -OutFile "$script:DataPath\packages\$($package.Name)\installer.$extension"
+                
+            }
             
             # Set executable properties in the package object to allow later code to run correctly
+            Write-Verbose "Adding properties to allow for installation"
             $package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value "installer.$extension"
-            $package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value $extension
+            $package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value ".$extension"
             
         }
         
-        # Installation logic
+        # Main installation logic
         if ($package.Type -eq "LocalPackage" -or $package.Type -eq "UrlPackage") {
             
+            # Differentiate between exe and msi installers
             if ($package.ExecutableType -eq ".exe") {
                 
-                # Start the exe installer
-                Start-Process -FilePath $script:DataPath\$package.Name\$package.ExecutableName
+                if ($PSCmdlet.ShouldProcess(".exe installer:$($package.ExecutableName)", "Start process")){
+                    
+                    # Start the exe installer and wait for finish
+                    Write-Verbose "Starting the .exe installer"
+                    Start-Process -FilePath "$script:DataPath\packages\$($package.Name)\$($package.ExecutableName)" -Wait
+                    
+                }
                 
             }elseif ($package.ExecutableType -eq ".msi") {
-                            
+                <# SET PROPERTIES OF MSI INSTALLER, removed for now since very few msi installers around anyway
                 # Set the display argument for msiexec
                 if ($ShowUI -eq $true) {
                     $dislayArgument = "/qr "
@@ -122,49 +172,100 @@
                     FileName = "msiexec.exe"
                     Arguments = "$script:DataPath\packages\$($package.Name)\$($package.ExecutableName) " + $dislayArgument + $logArgument + $paramArgument
                     UseShellExecute = $false
+                }#>
+                
+                if ($PSCmdlet.ShouldProcess(".msi installer:$($package.ExecutableName)", "Start process")) {
+                    
+                    # Start the msiexec process and wait for finish
+                    Write-Verbose "Starting the .msi installer"
+                    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $script:DataPath\packages\$($package.Name)\$($package.ExecutableName) /qf /l*v `"$script:DataPath\log-$($package.Name)-$(Get-Date -Format "yyyy-MM-dd HH:mm").txt`"" -Wait
+                    
                 }
                 
-                # Start msiexec and wait until it's finished
-                $process = New-Object System.Diagnostics.Process
-                $process.StartInfo = $processStartupInfo
-                $process.Start()
-                
-                $process.WaitForExit()
-                $process.Dispose()
-                            
             }
             
         }elseif ($package.Type -eq "PortablePackage") {
             
             # Check that the install directory exists, otherwise abort
             if ((Test-Path -Path $package.InstallDirectory) -eq $false) {
-                Write-Message -Message "The install directory is invalid: $($package.InstallDirectory)" -DisplayWarning
+                
+                Write-Message -Message "The install directory doesn't exist: $($package.InstallDirectory)" -DisplayWarning
                 return
+                
             }
-                    
-            # Copy package folder to install directory
-            Copy-Item -Path "$script:DataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
+            
+            # Check that the install directory doesn't contain any characters which could cause potential issues
+            if ($package.InstallDirectory -like "*.``**" -or $package.InstallDirectory -like "*``**" -or $package.InstallDirectory -like "*.*") {
+                
+                Write-Message -Message "The package install directory contains invalid characters" -DisplayWarning
+                return
+                
+            }
+            
+            if ($PSCmdlet.ShouldProcess("Package:{$name} files", "Copy to the installation directory")) {
+                                
+                # Copy package folder to install directory
+                Write-Verbose "Copying over the package files to $($package.InstallDirectory)"
+                Copy-Item -Path "$script:DataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
+                
+            }
             
         }elseif ($package.Type -eq "ChocolateyPackage") {
             
-            # TODO: Invoke chocolatey
+            # TODO: Invoke chocolatey install
             
         }
         
-        # Check if the package has a post-install scriptblock and run it
+        # Clean up temporary url-package properties
+        if ($package.Type -eq "UrlPackage") {
+            
+            # Remove the executable properties
+            Write-Verbose "Cleaning up temporary properties"
+            $package.psobject.Properties.Remove("ExecutableName")
+            $package.psobject.Properties.Remove("ExecutableType")
+            
+            # Check in-case the installer wasn't actually downloaded
+            if ((Test-Path -Path "$script:DataPath\packages\$($package.Name)") -eq $true) {
+                
+                if ($PSCmdlet.ShouldProcess("package:{$name} installer", "Delete")) {
+                    
+                    # Remove the temporarily downloaded installer
+                    Write-Verbose "Deleting the downloaded installer"
+                    Remove-Item -Path "$script:DataPath\packages\$($package.Name)" -Recurse -Force
+                    
+                }
+                
+            }
+            
+        }
+        
+        # Check if the package has a post-install scriptblock to run
+        Write-Verbose "Checking for post-install scriptblock"
         if ([System.String]::IsNullOrWhiteSpace($package.PostInstallScriptblock) -eq $false) {
-            $scriptblock = [scriptblock]::Create($prackage.PostInstallScriptblock)
-            Invoke-Command -ScriptBlock $scriptblock
+            
+            if ($PSCmdlet.ShouldProcess("post-install scriptblock from package:{$name}", "Execute scriptblock")) {
+                
+                # Convert string to scriptblock and execute
+                Write-Verbose "Coverting scriptblock and executing it"
+                $scriptblock = [scriptblock]::Create($package.PostInstallScriptblock)
+                Invoke-Command -ScriptBlock $scriptblock
+                
+            }
+            
         }
         
         # Set the installed flag for the package
+        Write-Verbose "Setting installed flag to true"
         $package.IsInstalled = $true
     
     }
     
-    
-    # Export-out package list to xml file
-    Export-PackageList -PackageList $packageList	
-            
+    if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Update the package:{$PackageName} installation status")){
+        
+        # Override xml database with updated package property
+        Write-Verbose "Writing-out data back to database"
+        Export-PackageList -PackageList $packageList
+        
+    }
     
 }

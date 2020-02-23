@@ -42,7 +42,7 @@
 				$packageList.Add($existingPackage)
 				
 			}
-		}        
+		}
         
     }
 	

@@ -95,15 +95,19 @@
 			}
 			
 			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Move the package files to $Path")){
+				
 				# Move the package files to the specified path
 				Move-Item -Path "$script:DataPath\packages\$PackageName\" -Destination $Path
+				
 			}
 			
 		}else {
 			
 			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Delete the package files")) {
+				
 				# Remove the package from the package store
 				Remove-Item -Path "$script:DataPath\packages\$PackageName\" -Recurse -Force
+				
 			}
 		
 		}
@@ -117,6 +121,7 @@
 	
 	
 	if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Remove the package `'$PackageName`'")){
+		
 		# Remove the PMPackage from the list
 		$packageList.Remove($package) | Out-Null
 		
@@ -132,6 +137,7 @@
 			Export-PackageList -PackageList $packageList
 			
 		}
+		
 	}	
 	
 }
