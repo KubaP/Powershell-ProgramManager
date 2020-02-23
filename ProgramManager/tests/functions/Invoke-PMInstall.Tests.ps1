@@ -92,7 +92,7 @@
         
         
     }
-    
+    <#
     Context "Url Package Validation" {
         
         InModuleScope -ModuleName ProgramManager {
@@ -164,13 +164,15 @@
             
         }
         
-    }
+    }#>
     
     Context "Portable Package Validation" {
         
         InModuleScope -ModuleName ProgramManager {
             
             Mock Invoke-Command { }
+            # Stop any message outputting to screen
+            Mock Write-Message { }
             
             It "Given valid parameter -PackageName <PackageName>; It should correctly install package" -TestCases @(
                 
@@ -252,12 +254,46 @@
                                 
             }
             
-            # TODO: Check for portable packages with invalid install directory
+            It "Given valid parameter -PackageName <PackageName>; with invalid InstallDirectory; It should stop and warn" -TestCases @(
+                
+                # The different invalid test cases for a portable package install directory
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = ".*" }
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "*" }
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "**" }
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "..." }
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "£%afasdfasdf£" }
+                @{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "\non-existent-folder\" }
+                
+            ) {
+                
+                # Pass test case data into the test body
+                Param ($PackageName, $FileName, $InstallDir)
+                
+                # Copy the test packages from the git repo to the temporary drive
+                New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
+                Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+                
+                # Create the package first
+                New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir"
+                
+                # Run the command
+                Invoke-PMInstall -PackageName $PackageName
+                
+                # Check that the warning message was properly sent
+                Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+                    $DisplayWarning -eq $true
+                }
+                
+                # Delete the package store and database file for next test
+                Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+                Remove-Item -Path "$dataPath\packages\" -Recurse -Force
+                Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
+                                
+            }
             
         }
         
-    }
-    
+    }    
     
     InModuleScope -ModuleName ProgramManager {
             

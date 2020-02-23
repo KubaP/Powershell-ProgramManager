@@ -28,7 +28,7 @@
         [AllowEmptyString()]
         [string[]]
         $PackageName
-
+        
     )
     
 	# Check if the xml database exists
@@ -180,8 +180,16 @@
                 
             }
             
-            if ($PSCmdlet.ShouldProcess("Package:{$name} files", "Copy to the installation directory")) {
+            # Check that the install directory doesn't contain any characters which could cause potential issues
+            if ($package.InstallDirectory -like "*.``**" -or $package.InstallDirectory -like "*``**" -or $package.InstallDirectory -like "*.*") {
                 
+                Write-Message -Message "The package install directory contains invalid characters" -DisplayWarning
+                return
+                
+            }
+            
+            if ($PSCmdlet.ShouldProcess("Package:{$name} files", "Copy to the installation directory")) {
+                                
                 # Copy package folder to install directory
                 Write-Verbose "Copying over the package files to $($package.InstallDirectory)"
                 Copy-Item -Path "$script:DataPath\packages\$($package.Name)" -Destination $package.InstallDirectory -Container -Recurse
