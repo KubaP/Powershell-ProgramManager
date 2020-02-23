@@ -16,16 +16,30 @@
 		If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
 		
     .EXAMPLE
-        PS C:\> Invoke-PMInstall -Name "chrome"
+        PS C:\> Invoke-PMInstall -Name "notepad"
         
-        This command will install the package named "chrome", executing any scriptblocks along with it.
+        This command will install the package named "notepad", executing any scriptblocks along with it.
+        
+    .EXAMPLE
+        PS C:\> Get-PMPackage "notepad" | Invoke-PMInstall
+        
+        This command supports passing in a ProgramManager.Package object, by retrieving it using Get-PMPacakge for example.
+        This command will install the package named "notepad", executing any scriptblocks along with it.
+        
+    .INPUTS
+        System.String[]
+        
+    .OUTPUTS
+        None
+        
     #>
     
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
     Param (
         
-        [Parameter(Mandatory = $true, Position = 0)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
         [AllowEmptyString()]
+        [Alias("Name")]
         [string[]]
         $PackageName
         
