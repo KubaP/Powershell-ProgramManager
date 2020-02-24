@@ -74,7 +74,7 @@
         }
         
         # Get the package by name
-        Write-Verbose "Retrieving the package object"
+        Write-Verbose "Retrieving the ProgramManager.Package Object"
         $package = $packageList | Where-Object { $_.Name -eq $name }
         # Warn the user if the name is invalid
         if ($null -eq $package) {
@@ -113,7 +113,7 @@
             if ($PSCmdlet.ShouldProcess("installer at url:$url", "Download")){
                 
                 # Download the installer from the url
-                Write-Verbose "Downloading installer to \packages\$($package.Name)"
+                Write-Verbose "Downloading installer to \packages\$($package.Name)\"
                 New-Item -ItemType Directory -Path "$script:DataPath\packages\$($package.Name)\" | Out-Null
                 Invoke-WebRequest -Uri $url -OutFile "$script:DataPath\packages\$($package.Name)\installer.$extension"
                 

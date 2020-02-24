@@ -50,6 +50,7 @@
 	)
 	
 	# Import all PMPackage objects from the database file
+	Write-Verbose "Loading existing packages from database"
 	$packageList = Import-PackageList	
 	
 	# Check that the name is not empty
@@ -59,6 +60,7 @@
 	}
 	
 	# Check if package name exists
+	Write-Verbose "Retrieving the ProgramManager.Package Object"
 	$package = $packageList | Where-Object { $_.Name -eq $PackageName }
 	if ($null -eq $package) {
 		Write-Message -Message "There is no package called: $PackageName" -DisplayWarning
@@ -73,6 +75,7 @@
 	
 	# Url or chocolatey packages dont store any files
 	if ($package.Type -eq "LocalPackage" -or $package.Type -eq "PortablePackage") {
+		Write-Verbose "Detected Local-Package or Portable-Package"
 		
 		# Check in case there is no folder for some reason?
 		if ((Test-Path -Path "$script:DataPath\packages\$PackageName\") -eq $false) {
@@ -81,6 +84,7 @@
 		}
 		
 		if ($RetainFiles -eq $true) {
+			Write-Verbose "Detected -RetainFiles flag"
 			
 			# Check that the path to move the files to is valid
 			if ((Test-Path -Path $Path) -eq $false) {
@@ -97,6 +101,7 @@
 			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Move the package files to $Path")){
 				
 				# Move the package files to the specified path
+				Write-Verbose "Moving package files to $Path"
 				Move-Item -Path "$script:DataPath\packages\$PackageName\" -Destination $Path
 				
 			}
@@ -106,6 +111,7 @@
 			if ($PSCmdlet.ShouldProcess("Package `'$PackageName`'", "Delete the package files")) {
 				
 				# Remove the package from the package store
+				Write-Verbose "Deleting package files at \packages\$PackageName"
 				Remove-Item -Path "$script:DataPath\packages\$PackageName\" -Recurse -Force
 				
 			}
@@ -123,9 +129,11 @@
 	if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Remove the package `'$PackageName`'")){
 		
 		# Remove the PMPackage from the list
+		Write-Verbose "Removing package object from list"
 		$packageList.Remove($package) | Out-Null
 		
 		# TODO: figure out better way of exporting empty packagelist without deleting actual xml file
+		Write-Verbose "Writing-out data back to database"
 		if ($packageList.Count -eq 0) {
 			
 			# If there are no more packages, then delete the database file

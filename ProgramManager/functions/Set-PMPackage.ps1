@@ -49,7 +49,8 @@
     )
     
     # Import all PMPackage objects from the database file
-	$packageList = Import-PackageList	
+    Write-Verbose "Loading existing packages from database"
+    $packageList = Import-PackageList	
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($PackageName) -eq $true) {
@@ -58,6 +59,7 @@
 	}
 	
 	# Check if package name exists
+    Write-Verbose "Retrieving the ProgramManager.Package Object"
 	$package = $packageList | Where-Object { $_.Name -eq $PackageName }
 	if ($null -eq $package) {
 		Write-Message -Message "There is no package called: $PackageName" -DisplayWarning
@@ -71,6 +73,7 @@
     }
     
     # Check that the property name is valid
+    Write-Verbose "Retrieving property from ProgramManager.Package Object"
     $property = $package.psobject.properties | Where-Object { $_.Name -eq $PropertyName }
     if ($null -eq $property) {
         Write-Message -Message "There is no property called: $PropertyName in package $PackageName" -DisplayWarning
@@ -78,11 +81,13 @@
     }
     
     # Set the value to the newly specified value
+    Write-Verbose "Setting property:{$PropertyName} value to $PropertyValue"
     $property.Value = $PropertyValue
     
     if ($PSCmdlet.ShouldProcess("$script:DataPath\packageDatabase.xml", "Edit the package `'$PackageName`'")){
         
         # Export-out package list to xml file
+        Write-Verbose "Writing-out data back to database"
         Export-PackageList -PackageList $packageList
         
 	}

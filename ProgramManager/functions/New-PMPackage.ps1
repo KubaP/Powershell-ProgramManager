@@ -134,6 +134,7 @@
 	)
 		
 	# Import all PMPackage objects from the database file
+	Write-Verbose "Loading existing packages from database"
 	$packageList = Import-PackageList	
 	
 	# Check that the name is not empty
@@ -184,10 +185,12 @@
 	}
 	
 	# Create PMpackage object	
+	Write-Verbose "Creating new ProgramManager.Package Object"
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
 	
 	# Add compulsory properties
+	Write-Verbose "Adding universal properties to object: name,type,isinstalled"
 	$package | Add-Member -Type NoteProperty -Name "Name" -Value $Name
 	$package | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
 	$package | Add-Member -Type NoteProperty -Name "IsInstalled" -Value $false
@@ -217,6 +220,7 @@
 	}
 	
 	if ($LocalPackage -eq $true) {	
+		Write-Verbose "Detected Local-Pacakge"
 		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
@@ -239,31 +243,38 @@
 		if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the installer to the package store")) {
 			
 			# Move the executable to the package store
+			Write-Verbose "Copying over installer to \packages\$Name\"
 			New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 			Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($executable.Name)"	-Confirm:$false
 			
 		}
 		
 		# Add executable properties
+		Write-Verbose "Adding properties: executable name & type"
 		$package | Add-Member -Type NoteProperty -Name "ExecutableName" -Value $executable.Name
 		$package | Add-Member -Type NoteProperty -Name "ExecutableType" -Value $executable.Extension
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
+			Write-Verbose "Adding property: install directory"
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
 	}elseif ($UrlPackage -eq $true) {	
+		Write-Verbose "Detected Url-Pacakge"
 		
 		# Add url property	
+		Write-Verbose "Adding property: download link"
 		$package | Add-Member -Type NoteProperty -Name "Url" -Value $PackageLocation
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
+			Write-Verbose "Adding property: install directory"
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
 	}elseif ($PortablePackage -eq $true) {
+		Write-Verbose "Detected Portable-Pacakge"
 		
 		# Check that a install directory parameter is given in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $true) {
@@ -277,6 +288,7 @@
 			return
 		}
 		
+		Write-Verbose "Retrieving item located at: $PackageLocation"
 		$item = Get-Item -Path $PackageLocation
 		
 		# There are multiple items collected under this file path so reject it
@@ -290,6 +302,7 @@
 			if ($PSCmdlet.ShouldProcess("Folder: $PackageLocation", "Move the package container to the package store")) {
 				
 				# This is a folder so can be moved straight to the package store
+				Write-Verbose "Detected container. Moving folder to \packages\$Name\"
 				Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name" -Confirm:$false
 				
 			}
@@ -307,6 +320,7 @@
 					# Extract archive to parent location and delete the original
 					# Must set do this trickery to stop confirmation prompts, since passing -Confirm:$false to Expand-Archive
 					# doen't propogate that to the individual New-Item -Directory commands, and each one would generate a prompt
+					Write-Verbose "Detected archive. Extracting archive to \temp\"
 					$originalConfirmPrefrence = $ConfirmPreference
 					$ConfirmPreference = "None"
 					Expand-Archive -Path $PackageLocation -DestinationPath "$script:DataPath\temp"
@@ -334,6 +348,7 @@
 					}else {
 						
 						if ($PSCmdlet.ShouldProcess("Folder: $currentDir", "Move the package container to the package store")) {
+							Write-Verbose "Moving folder to \packages\$Name\"
 							Move-Item -Path $currentDir -Destination "$script:DataPath\packages\$Name" -Confirm:$false
 						}
 						
@@ -341,12 +356,14 @@
 					
 				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
 				
+				Write-Verbose "Cleaning up \temp\"
 				Remove-Item -Path "$script:DataPath\temp\" -Recurse -Force -Confirm:$false
 				
 			}elseif ($file.Extension -eq ".exe") {
 				
 				if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the executable to the package store")) {
 					# This is a portable package with only a single exe file				
+					Write-Verbose "Detected executable. Moving program to \packages\$Name\"
 					New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 					Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)" -Confirm:$false
 				}
@@ -362,26 +379,32 @@
 		}
 		
 		# Add necessary properties	
+		Write-Verbose "Adding property: install directory"
 		$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		
 	}elseif ($ChocolateyPackage -eq $true) {
+		Write-Verbose "Detected Chocolatey-Pacakge"
 		
 		# Add necessary info for chocolatey to work
+		Write-Verbose "Adding property: chocolatey package name"
 		$package | Add-Member -Type NoteProperty -Name "PackageName" -Value $PackageName
 		
 	}
 	
 	# Add optional note property if passed in
 	if ([System.String]::IsNullOrWhiteSpace($Note) -eq $false) {
+		Write-Verbose "Adding property: note"
 		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
 	}
 	
 	# Add optional scriptblock proprties if passed in
 	if ($null -ne $PreInstallScriptblock) {
+		Write-Verbose "Adding property: pre-install scriptblock"
 		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock.ToString()
 	}
 	
 	if ($null -ne $PostInstallScriptblock) {
+		Write-Verbose "Adding property: post-install scriptblock"
 		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock.ToString()
 	}
 	
@@ -392,6 +415,7 @@
 		$packageList.Add($package)
 		
 		# Export-out package list to xml file
+        Write-Verbose "Writing-out data back to database"
 		Export-PackageList -PackageList $packageList
 		
 	}
