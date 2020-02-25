@@ -39,15 +39,19 @@
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($PackageName) -eq $true) {
+		
 		Write-Message -Message "The name cannot be empty" -DisplayWarning
 		return
+		
 	}
 	
 	# Check if package exists
 	$package = $packageList | Where-Object { $_.Name -eq $PackageName }
 	if ($null -eq $package) {
+		
 		Write-Message -Message "There is no package called: $PackageName" -DisplayWarning
 		return
+		
 	}
 	
 	# Append the View object type to control the visual output of the object depending on the user's preference

@@ -139,47 +139,61 @@
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($Name) -eq $true) {
+		
 		Write-Message -Message "The name cannot be empty" -DisplayWarning
 		return
+		
 	}
 	
 	# Check that the name doesn't contain any characters which could cause potential issues
 	if ($Name -like "*.*" -or $Name -like "*``**" -or $Name -like "*.``**") {
+		
 		Write-Message -Message "The name contains invalid characters" -DisplayWarning
 		return
+		
 	}
 	
 	# Check if name is already taken
 	$package = $packageList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $package) {
+		
 		Write-Message -Message "There already exists a package called: $Name" -DisplayWarning
 		return
+		
 	}
 	
 	# Check that the scriptblocks actually contain code
 	if ($null -ne $PreInstallScriptblock) {
 		
 		if ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $true) {
+			
 			Write-Message -Message "The Pre-Install Scriptblock cannot be empty" -DisplayWarning
 			return
+			
 		}
 		
 		if ($PreInstallScriptblock.ToString() -like "``*") {
+			
 			Write-Message -Message "The Pre-Install Scriptblock cannot just be '*'" -DisplayWarning
 			return
+			
 		}
 		
 	}
 	if ($null -ne $PostInstallScriptblock) {
 		
 		if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $true) {
+			
 			Write-Message -Message "The Post-Install Scriptblock cannot be empty" -DisplayWarning
 			return
+			
 		}
 		
 		if ($PostInstallScriptblock.ToString() -like "``*") {
+			
 			Write-Message -Message "The Post-Install Scriptblock cannot just be '*'" -DisplayWarning
 			return
+			
 		}
 		
 	}
@@ -208,15 +222,19 @@
 	
 	# Check that the path is not empty
 	if ([System.String]::IsNullOrWhiteSpace($Path) -eq $true) {
+		
 		Write-Message -Message "The path cannot be empty" -DisplayWarning
 		return
+		
 	}
 	
 	# Check that the path doesn't contain any characters which could cause potential issues or undesirable effects
 	if ($PackageLocation -like "." -or $PackageLocation -like ".``*" -or $PackageLocation -like "~" -or $PackageLocation -like ".." `
 		-or $PackageLocation -like "...") {
+			
 		Write-Message -Message "The path provided is not accepted for safety reasons" -DisplayWarning
 		return
+		
 	}
 	
 	if ($LocalPackage -eq $true) {
@@ -224,20 +242,26 @@
 		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
+			
 			Write-Message -Message "There is no valid path pointing to: $PackageLocation" -DisplayWarning
 			return
+			
 		}
 		
 		# Get the details of the executable and check whether it is actually a file
 		$executable = Get-Item -Path $PackageLocation
 		if ($executable.PSIsContainer -eq $true -or $executable.GetType().Name -eq "Object[]") {
+			
 			Write-Message -Message "There is no (single) executable located at the path: $PackageLocation" -DisplayWarning
 			return
+			
 		}
 		
 		if (($executable.Extension -match ".exe|.msi") -eq $false) {
+			
 			Write-Message -Message "There is no installer file located at the path: $PackageLocation" -DisplayWarning
 			return
+			
 		}
 		
 		if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the installer to the package store")) {
@@ -256,8 +280,10 @@
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
+			
 			Write-Verbose "Adding property: install directory"
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
+		
 		}
 		
 	}elseif ($UrlPackage -eq $true) {
@@ -269,8 +295,10 @@
 		
 		# Add install directory if passed in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $false) {
+			
 			Write-Verbose "Adding property: install directory"
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
+		
 		}
 		
 	}elseif ($PortablePackage -eq $true) {
@@ -278,14 +306,18 @@
 		
 		# Check that a install directory parameter is given in
 		if ([System.String]::IsNullOrWhiteSpace($InstallDirectory) -eq $true) {
+			
 			Write-Message -Message "The install directory path must not be empty" -DisplayWarning
 			return
+			
 		}
 		
 		# Check that the path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
+			
 			Write-Message -Message "There is no folder/file located at the path: $PackageLocation" -DisplayWarning
 			return
+			
 		}
 		
 		Write-Verbose "Retrieving item located at: $PackageLocation"
@@ -293,8 +325,10 @@
 		
 		# There are multiple items collected under this file path so reject it
 		if ($item.GetType().Name -eq "Object[]") {
+			
 			Write-Message -Message "You cannot specify multiple items in the filepath" -DisplayWarning
 			return
+			
 		}
 		
 		if ((Get-Item -Path $PackageLocation).PSIsContainer -eq $true) {
@@ -393,19 +427,25 @@
 	
 	# Add optional note property if passed in
 	if ([System.String]::IsNullOrWhiteSpace($Note) -eq $false) {
+		
 		Write-Verbose "Adding property: note"
-		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note		
+		$package | Add-Member -Type NoteProperty -Name "Note" -Value $Note	
+			
 	}
 	
 	# Add optional scriptblock proprties if passed in
 	if ($null -ne $PreInstallScriptblock) {
+		
 		Write-Verbose "Adding property: pre-install scriptblock"
 		$package | Add-Member -Type NoteProperty -Name "PreInstallScriptblock" -Value $PreInstallScriptblock.ToString()
+	
 	}
 	
 	if ($null -ne $PostInstallScriptblock) {
+		
 		Write-Verbose "Adding property: post-install scriptblock"
 		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock.ToString()
+	
 	}
 	
 	
