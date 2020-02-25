@@ -2,13 +2,13 @@
 	<#
 	.SYNOPSIS
 		Removes a package from the database.    
-	
+		
 	.DESCRIPTION
 		Erases the data of a PMPackage from the database.
 		
 	.PARAMETER PackageName
 		The name of the pacakge to remove.
-	
+		
 	.PARAMETER RetainFiles
 		If removing a local or portable package, which has files/installers saved within the package store, 
 		this switch will move those files to a specific location rather than deleting them.
@@ -51,7 +51,7 @@
 	
 	# Import all PMPackage objects from the database file
 	Write-Verbose "Loading existing packages from database"
-	$packageList = Import-PackageList	
+	$packageList = Import-PackageList
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($PackageName) -eq $true) {
@@ -140,12 +140,12 @@
 			Remove-Item -Path "$script:DataPath\packageDatabase.xml" -Force
 			
 		}else {
-				
+			
 			# Export-out package list to xml file
 			Export-PackageList -PackageList $packageList
 			
 		}
 		
-	}	
+	}
 	
 }

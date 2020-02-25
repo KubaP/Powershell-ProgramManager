@@ -12,11 +12,11 @@
 		This populates the $list with all defined packages.
 		
 	#>
-    
-    # Create list of all PMPackage objects
+	
+	# Create list of all PMPackage objects
 	$packageList = [System.Collections.Generic.List[psobject]]@()
-    
-    # Check if the xml database exists
+	
+	# Check if the xml database exists
 	if ((Test-Path -Path "$script:DataPath\packageDatabase.xml") -eq $true) {
 		
 		# The xml database exists
@@ -43,10 +43,10 @@
 				
 			}
 		}
-        
-    }
+		
+	}
 	
 	# Return the list object; -NoEnumerate is used to avoid powershell converting list to Object[] array
-    Write-Output $packageList -NoEnumerate
-    
+	Write-Output $packageList -NoEnumerate
+	
 }

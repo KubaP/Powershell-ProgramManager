@@ -15,16 +15,16 @@
 		
 	.PARAMETER LocalPackage
 		Specifies the use of a local installer file located at an available path.
-	
+		
 	.PARAMETER UrlPackage
 		Specifies the use of an installer file located at a url.
-	
+		
 	.PARAMETER PortablePackage
 		Specifies the use of a portable binary file located at a path or url.
-	
+		
 	.PARAMETER ChocolateyPackage
 		Specifies the use of a chocolatey package.
-	
+		
 	.PARAMETER PackageLocation
 		The location of the package.
 		- For LocalPackage: file path pointing to the executable
@@ -36,7 +36,7 @@
 		
 	.PARAMETER PackageName
 		The name of a chocolatey package. To be used with the -ChocolateyPackage switch.
-	
+		
 	.PARAMETER Note
 		A short note/description to explain what the package entry is. Optonal
 		
@@ -56,7 +56,7 @@
 		PS C:\> New-PMPackage -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
 		
 		Adds the program to the database with the specified name and short note.
-
+		
 	#>	
 	
 	[CmdletBinding(DefaultParameterSetName = "LocalInstaller", SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
@@ -132,10 +132,10 @@
 		$PostInstallScriptblock
 		
 	)
-		
+	
 	# Import all PMPackage objects from the database file
 	Write-Verbose "Loading existing packages from database"
-	$packageList = Import-PackageList	
+	$packageList = Import-PackageList
 	
 	# Check that the name is not empty
 	if ([System.String]::IsNullOrWhiteSpace($Name) -eq $true) {
@@ -168,7 +168,7 @@
 			Write-Message -Message "The Pre-Install Scriptblock cannot just be '*'" -DisplayWarning
 			return
 		}
-			
+		
 	}
 	if ($null -ne $PostInstallScriptblock) {
 		
@@ -201,7 +201,7 @@
 			
 			# The packages subfolder doesn't exist. Create it to avoid errors with Move-Item
 			New-Item -ItemType Directory -Path "$script:DataPath\packages\" -Confirm:$false | Out-Null
-				
+			
 		}
 		
 	}
@@ -219,7 +219,7 @@
 		return
 	}
 	
-	if ($LocalPackage -eq $true) {	
+	if ($LocalPackage -eq $true) {
 		Write-Verbose "Detected Local-Pacakge"
 		
 		# Check that the path is valid
@@ -229,7 +229,7 @@
 		}
 		
 		# Get the details of the executable and check whether it is actually a file
-		$executable = Get-Item -Path $PackageLocation		
+		$executable = Get-Item -Path $PackageLocation
 		if ($executable.PSIsContainer -eq $true -or $executable.GetType().Name -eq "Object[]") {
 			Write-Message -Message "There is no (single) executable located at the path: $PackageLocation" -DisplayWarning
 			return
@@ -260,10 +260,10 @@
 			$package | Add-Member -Type NoteProperty -Name "InstallDirectory" -Value $InstallDirectory
 		}
 		
-	}elseif ($UrlPackage -eq $true) {	
+	}elseif ($UrlPackage -eq $true) {
 		Write-Verbose "Detected Url-Pacakge"
 		
-		# Add url property	
+		# Add url property
 		Write-Verbose "Adding property: download link"
 		$package | Add-Member -Type NoteProperty -Name "Url" -Value $PackageLocation
 		
@@ -362,7 +362,7 @@
 			}elseif ($file.Extension -eq ".exe") {
 				
 				if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the executable to the package store")) {
-					# This is a portable package with only a single exe file				
+					# This is a portable package with only a single exe file
 					Write-Verbose "Detected executable. Moving program to \packages\$Name\"
 					New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 					Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)" -Confirm:$false
@@ -415,7 +415,7 @@
 		$packageList.Add($package)
 		
 		# Export-out package list to xml file
-        Write-Verbose "Writing-out data back to database"
+		Write-Verbose "Writing-out data back to database"
 		Export-PackageList -PackageList $packageList
 		
 	}
