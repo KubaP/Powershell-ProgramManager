@@ -4,7 +4,7 @@
 		Adds a program to the ProgramManager database.
 		
 	.DESCRIPTION
-		Adds a program to the ProgramManager database for future installation.
+		Adds a new ProgramManager.Package to the database for future installation.
 		Accepts the following:
 		- msi/exe installer (local file or url download)
 		- zip binary
@@ -38,7 +38,7 @@
 		The name of a chocolatey package. To be used with the -ChocolateyPackage switch.
 		
 	.PARAMETER Note
-		A short note/description to explain what the package entry is. Optonal
+		A short note/description to explain what the package entry is.
 		
 	.PARAMETER PreInstallScriptblock
 		A script block which will be executed before the main package installation process.
@@ -53,9 +53,25 @@
 		If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
 		
 	.EXAMPLE
-		PS C:\> New-PMPackage -Name "chrome" -LocalPackage -PackageLocation "C:\Users\<user>\Downloads\chrome.msi" -Note "Chrome msi installer"
+		PS C:\> New-PMPackage -Name "notepad" -LocalPackage -PackageLocation "~\Downloads\notepad.msi" -Note "Notepad msi installer"
 		
-		Adds the program to the database with the specified name and short note.
+		Adds the locally stored program to the database with the specified name and short note.
+		
+	.EXAMPLE
+		PS C:\> New-PMPackage -Name "notepad" -UrlPackage -PackageLocation "https://download/" -PreInstallScriptblock {Write-Host "installing notepad"}
+		
+		Adds the url-downloaded program to the database with the specified pre-install scriptblock.
+		
+	.EXAMPLE
+		PS C:\> New-PMPackage -Name "notepad" -PortablePackage -PackageLocation "~\Downloads\program.zip" -InstallDirectory "D:\Programs\"
+		
+		Adds the portable program to the database with the specified install directory.
+		
+	.INPUTS
+		None
+		
+	.OUTPUTS
+		None
 		
 	#>	
 	

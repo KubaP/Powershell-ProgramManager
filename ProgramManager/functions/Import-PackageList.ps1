@@ -1,15 +1,15 @@
 ﻿function Import-PackageList {
 	<#
 	.SYNOPSIS
-		Imports the package list.
+		Imports the package list
 		
 	.DESCRIPTION
-		Imports all ProgramManager.Package psobjects from the xml database.
+		Imports all ProgramManager.Package objects from the xml database.
 		
 	.EXAMPLE
 		PS C:\> $list = Import-PackageList
 		
-		This populates the $list with all defined packages.
+		This populates the $list with all existing packages.
 		
 	#>
 	

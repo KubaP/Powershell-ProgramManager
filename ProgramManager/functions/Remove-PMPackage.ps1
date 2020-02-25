@@ -1,13 +1,13 @@
 ﻿function Remove-PMPackage {
 	<#
 	.SYNOPSIS
-		Removes a package from the database.    
+		Removes a ProgramManager package from the database.    
 		
 	.DESCRIPTION
-		Erases the data of a PMPackage from the database.
+		Erases the data of a ProgramManager.Package object from the database.
 		
 	.PARAMETER PackageName
-		The name of the pacakge to remove.
+		The name of the package to remove.
 		
 	.PARAMETER RetainFiles
 		If removing a local or portable package, which has files/installers saved within the package store, 
@@ -26,15 +26,34 @@
 	.EXAMPLE
 		PS C:\> Remove-PMPackage -PackageName "notepad"
 		
-		This will erase the package "notepad" from the database and delete any physical files, such as the installer executable.
+		This command will remove the package "notepad" from the database and delete any physical files, such as the installer executable.
+		
+	.EXAMPLE
+		PS C:\ Remove-PMPackage -PackageName "notepad" -RetainFiles -Path "~\Downloads\"
+		
+		This command will remove the package "notepad" from the database, but will not delete any physical files, such as the installer executable.
+		It will move the files to the ~\Download\ foder
+		
+	.EXAMPLE
+		PS C:\ Get-PMPackage "notepad" | Remove-PMPackage
+		
+		This command supports passing in a ProgramManager.Package object, by retrieving it using Get-PMPacakge for example.
+		This command will remove the package "notepad" from the database and delete any physical files, such as the installer executable.
+				
+	.INPUTS
+		System.String
+		
+	.OUTPUTS
+		None
 		
 	#>
 	
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
 	Param (
 		
-		[Parameter(Mandatory = $true, Position = 0)]
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
 		[AllowEmptyString()]
+		[Alias("Name")]
 		[string]
 		$PackageName,
 		
@@ -144,19 +163,9 @@
 		Write-Verbose "Removing package object from list"
 		$packageList.Remove($package) | Out-Null
 		
-		# TODO: figure out better way of exporting empty packagelist without deleting actual xml file
+		# Export-out package list to xml file
 		Write-Verbose "Writing-out data back to database"
-		if ($packageList.Count -eq 0) {
-			
-			# If there are no more packages, then delete the database file
-			Remove-Item -Path "$script:DataPath\packageDatabase.xml" -Force
-			
-		}else {
-			
-			# Export-out package list to xml file
-			Export-PackageList -PackageList $packageList
-			
-		}
+		Export-PackageList -PackageList $packageList
 		
 	}
 	

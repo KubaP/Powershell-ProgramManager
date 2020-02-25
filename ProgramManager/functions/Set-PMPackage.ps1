@@ -1,10 +1,10 @@
 ﻿function Set-PMPackage {
 	<#
 	.SYNOPSIS
-		Sets a property of a package.
+		Sets a property of a ProgramManager package.
 		
 	.DESCRIPTION
-		Modifies an existing or creates a new property for a PMPackage object.
+		Modifies an existing property for a ProgramManager.Package object.
 		
 	.PARAMETER PackageName
 		The name of the pacakge to modify.
@@ -24,15 +24,29 @@
 	.EXAMPLE
 		PS C:\> Set-PMPackage -PackageName "notepad" -PropertyName "Note" -PropertyValue "A new description"
 		
-		This will set the 'Note' property to the passed in value for the 'notepad' package.
-		If this property already exists, it will be modified. If this property doesn't exist, it will be created.
+		This will set the 'Note' property to the newly passed in value for the 'notepad' package.
+		If this property already exists, it will be modified.
+		
+	.EXAMPLE
+		PS C:\ Get-PMPackage "notepad" | Set-PMPackage -PropertyName "Note" -PropertyValue "A new description"
+		
+		This command supports passing in a ProgramManager.Package object, by retrieving it using Get-PMPacakge for example.
+		This will set the 'Note' property to the newly passed in value for the 'notepad' package.
+		
+	.INPUTS
+		System.String
+		
+	.OUTPUTS
+		None
+		
 	#>
 	
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "Medium")]
 	Param (
 		
-		[Parameter(Mandatory = $true, Position = 0)]
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
 		[AllowEmptyString()]
+		[Alias("Name")]
 		[string]
 		$PackageName,
 		

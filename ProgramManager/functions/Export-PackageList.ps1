@@ -1,18 +1,19 @@
 ﻿function Export-PackageList {
 	<#
 	.SYNOPSIS
-		Exports data to a specified format.
+		Exports package list
 		
 	.DESCRIPTION
-		Exports data to a specified format.
+		Exports ProgramManager.Package List to xml database.
 		
 	.PARAMETER PackageList
-		The System.Collections.Generic.List[psobject] of packages to export back.
+		The System.Collections.Generic.List[psobject] of packages to serialise.
 		
 	.EXAMPLE
 		PS C:\> Export-Data -PackageList $packages
 		
 		Exports the $packages list to the module root folder
+		
 	#>
 	
 	[CmdletBinding()]
@@ -20,6 +21,7 @@
 		
 		[Parameter(Mandatory = $true, Position = 0)]
 		[System.Collections.Generic.List[psobject]]
+		[AllowEmptyCollection()]
 		$PackageList
 		
 	)

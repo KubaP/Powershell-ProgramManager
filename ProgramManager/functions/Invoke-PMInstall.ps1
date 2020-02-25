@@ -4,7 +4,7 @@
 		Installs a ProgramManager package.
 		
 	.DESCRIPTION
-		Installs a ProgramManager package which has been earlier added to the database.
+		Invokes an installation process on a ProgramManager.Package which has been earlier added to the database.
 		
 	.PARAMETER PackageName
 		The name of the ProgramManager package to install.

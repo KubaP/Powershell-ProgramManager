@@ -1,22 +1,29 @@
 ﻿function Get-PMPackage {
 	<#
 	.SYNOPSIS
-		Get information about a specified package.
+		Get information about a specified ProgramManager package.
 		
 	.DESCRIPTION
-		Returns the specified PMPackage object, for display to terminal.
+		Returns the specified ProgramManager.Package object, for display to terminal, or for passing down the pipeline.
 		
 	.PARAMETER PackageName
 		The name of the package to retrieve.
 		
 	.PARAMETER ShowFullDetail
-		Toggles whether it shows a overview of the package with the usually important properties,
+		Toggles whether it shows a overview of the package with the "usually" important properties,
 		or whether it shows every single property of the package, some of which will not have much use for the user.
 		
 	.EXAMPLE
 		PS C:\> Get-PMPackage -PackageName "notepad"
 		
 		Returns information about the "notepad" package.
+		
+	.INPUTS
+		None
+		
+	.OUTPUTS
+		None
+		
 	#>
 	
 	[CmdletBinding()]
