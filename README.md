@@ -2,8 +2,10 @@
 ProgramManager is a powershell module which mimicks some of the features of standard package managers, but is designed for traditional windows installation files. This module allows you to easily add, keep track off, install, and uninstall programs with only a handful of simple-to-use commands. This module works on programs which are:
 - .exe/.msi installers located locally
 - .exe/.msi installers downloaded from a url
-- portable programs, either as a standolone .exe's or as zip folders
+- portable programs, either as a standolone .exe's or as folders
 - *~~chocolatey packages~~ [TODO]*
+
+This module is primarily aimed at someone who wants to easily add new software to a package manager, but doesn't want to deal with the complexity of creating their own local package for chocolatey.
 
 <br>
 
@@ -53,7 +55,7 @@ When adding a portable program, `-PackageLocation` can point to either a:
 
 <br>
 
-When adding a new package to the database, the package files (if located locally) are moved to a storage location and kept there untill the package is removed. These files are stored at `<path>`. It is **highly** recommended to not directly modify anything within this directory.
+When adding a new package to the database, the package files (if located locally) are moved to a storage location and kept there untill the package is removed. These files are stored at `<!path>`. It is **highly** recommended to not directly modify anything within this directory.
 
 ### Installing a package
 To install a package, run this command:
@@ -97,7 +99,7 @@ The functions support advanced tab-completion for values:
 - The `-PropertyName` parameter supports tab-completion once a `-PackageName` is given in.
 
 #### Custom scriptblock support
-When adding a new package, you can pass in a scriptblock for `-PreInstallScriptblock` or `-PostInstallScriptblock`. These scriptblocks will execute during package installation.
+When adding a new package, you can pass in a scriptblock for `-PreInstallScriptblock` or `-PostInstallScriptblock`. These scriptblocks will execute during package installation. **Still WIP**
 
 #### -WhatIf and -Confirm support
 All functions in this module support these parameters when appropiate.
@@ -137,7 +139,7 @@ General file integrity tests are located in `\ProgramManager\tests\general\`
 Function specific tests are located in `\ProgramManager\tests\functions\`
 
 ## Support
-If there is a bug/issue please file it on the github repo issue tracker.
+If there is a bug/issue please file it on the github issue tracker.
 
 ## Contributing
 Feel free to make pull requests if you have an improvement. Only submit a single feature at a time, and make sure that the code is cleanly formatted, readable, and well commented.
