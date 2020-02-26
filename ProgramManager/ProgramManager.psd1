@@ -21,7 +21,7 @@
 	Description = 'A simple program manager which emulates some of the functionality of a package manager, but with a focus on ease-of-use and quick customizability.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
-	PowerShellVersion = '6.0'
+	PowerShellVersion = '5.0'
 	
 	# Modules that must be imported into the global environment prior to importing
 	# this module
@@ -73,7 +73,7 @@
 		PSData = @{
 			
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @("Windows","Automation","PackageManagement","PSEdition_Core")
+			Tags = @("Windows","Automation","PackageManagement","PSEdition_Core","PSEdition_Desktop")
 			
 			# A URL to the license for this module.
 			LicenseUri = 'https://mit-license.org/'
