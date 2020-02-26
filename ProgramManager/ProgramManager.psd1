@@ -3,7 +3,7 @@
 	RootModule = 'ProgramManager.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '0.0.1'
+	ModuleVersion = '0.1.0'
 	
 	# ID used to uniquely identify this module
 	GUID = '7572858c-6870-4911-bd85-5b4aef2427b6'
@@ -21,7 +21,7 @@
 	Description = 'A simple program manager which emulates some of the functionality of a package manager, but with a focus on ease-of-use and quick customizability.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
-	PowerShellVersion = '5.0'
+	PowerShellVersion = '6.0'
 	
 	# Modules that must be imported into the global environment prior to importing
 	# this module
@@ -73,13 +73,13 @@
 		PSData = @{
 			
 			# Tags applied to this module. These help with module discovery in online galleries.
-			# Tags = @()
+			Tags = @("Windows","Automation","PackageManagement","PSEdition_Core")
 			
 			# A URL to the license for this module.
-			# LicenseUri = ''
+			LicenseUri = 'https://mit-license.org/'
 			
 			# A URL to the main website for this project.
-			# ProjectUri = ''
+			ProjectUri = 'https://github.com/KubaP/Powershell-ProgramManager'
 			
 			# A URL to an icon representing this module.
 			# IconUri = ''
