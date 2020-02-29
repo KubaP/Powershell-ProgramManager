@@ -9,9 +9,9 @@ This module is primarily aimed at someone who wants to easily add new software t
 
 <br>
 
-|Latest Build Status|Latest Commit|
-|-|-|
-|[![Build Status](https://dev.azure.com/KubaP999/ProgramManager/_apis/build/status/ProgramManager_development_CI?branchName=development)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)|[![Build Status](https://dev.azure.com/KubaP999/ProgramManager/_apis/build/status/6?branchName=feature-documentation)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=6&branchName=feature-documentation)|
+|Latest Build Status|
+|-|
+|[![Build Status](https://dev.azure.com/KubaP999/ProgramManager/_apis/build/status/ProgramManager_development_CI?branchName=development)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)||
 
 
 ## Getting Started
@@ -120,23 +120,14 @@ git clone https://github.com/KubaP/Powershell-ProgramManager.git
 ```
 
 ### Run the build scripts
-*[TODO]*
 
-*Run the following commands in this order:*
+Run the following commands in this order:
 ```powershell
 & .\build\vsts-prerequisites.ps1
 & .\build\vsts-valiate.ps1
-& .\build\vsts-build.ps1
+& .\build\vsts-build.ps1 -WorkingDirectory .\ -SkipPublish
 ```
-
-### Run tests manually
-Navigate to the root of the git repo. Then run the following to initiate all tests:
-```powershell
-Invoke-Pester .\ProgramManager\tests\pester.ps1
-```
-General file integrity tests are located in `\ProgramManager\tests\general\`
-
-Function specific tests are located in `\ProgramManager\tests\functions\`
+The built module will be located in the `.\publish` folder.
 
 ## Support
 If there is a bug/issue please file it on the github issue tracker.
