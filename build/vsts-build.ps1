@@ -1,21 +1,17 @@
-﻿<#
-This script publishes the module to the gallery.
-It expects as input an ApiKey authorized to publish the module.
-
-Insert any build steps you may need to take before publishing it here.
-#>
-param (
+﻿param (
 	# Key for publishing to psgallery
 	$ApiKey,
 	
-	# Azure pipeline working directory stuff
+	# The root folder for the whole project, containing the git files, build files, module files etc
+	# If running locally, specify it to the project root folder
 	$WorkingDirectory,
 	
 	# Repository to publish to
 	$Repository = 'PSGallery',
 	
+	# Publish to test PSGallery instead
 	[switch]
-	$LocalRepo,
+	$TestRepo,
 	
 	# Build but don't publish
 	[switch]
@@ -23,7 +19,7 @@ param (
 	
 )
 
-# Handle Working Directory Defaults
+# Handle Working Directory paths within Azure pipelines
 if (-not $WorkingDirectory) {
 	if ($env:RELEASE_PRIMARYARTIFACTSOURCEALIAS) {
 		$WorkingDirectory = Join-Path -Path $env:SYSTEM_DEFAULTWORKINGDIRECTORY -ChildPath $env:RELEASE_PRIMARYARTIFACTSOURCEALIAS
@@ -33,8 +29,9 @@ if (-not $WorkingDirectory) {
 
 # Prepare publish folder
 Write-Host "Creating and populating publishing directory"
+Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse -ErrorAction SilentlyContinue
 $publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
-# Copy the git repo to the publish folder
+# Copy the module files from the git repo to the publish folder
 Copy-Item -Path "$($WorkingDirectory)\ProgramManager" -Destination $publishDir.FullName -Recurse -Force
 
 # Gather text data from scripts to compile
@@ -116,10 +113,26 @@ $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n")
 # Publish
 if ($SkipPublish) { return }
 
-if ($LocalRepo) {
+if ($TestRepo) {
 	
-	# Nuget publish command
-	# TODO:
+	# Publish to TESTING PSGallery
+	Write-Host "Publishing the ProgramManager module to TEST PSGallery"
+	
+	# Register testing repository
+	# TODO: figure out why cannot publish to poshtestgallery
+	Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted
+	Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo"
+	
+	Write-Host "Published package to test repo. Waiting 30 seconds."
+	Start-Sleep -Seconds 30
+	
+	# Uninstall module if it already exists, to then install the test-module
+	Uninstall-Module -Name "ProgramManager" -Force
+	Install-Module -Name "ProgramManager" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck
+	Write-Host "Test ProgramManager module installed"
+	
+	# Remove the testing repository
+	Unregister-PSRepository -Name "test-repo"
 	
 }else {
 	

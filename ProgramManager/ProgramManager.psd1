@@ -45,10 +45,7 @@
 		'Get-PMPackage',
 		'Set-PMPackage',
 		'Remove-PMPackage',
-		'Invoke-PMInstall',
-		'Export-PackageList',
-		'Import-PackageList',
-		'Write-Message'
+		'Invoke-PMInstall'
 	)
 	
 	# Cmdlets to export from this module
