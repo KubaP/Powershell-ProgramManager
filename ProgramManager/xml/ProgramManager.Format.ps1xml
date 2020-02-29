@@ -1,31 +1,138 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
 <Configuration>
 	<ViewDefinitions>
-		<!-- Foo.Bar -->
+		<!-- ProgramManager.Package -->
 		<View>
-			<Name>Foo.Bar</Name>
+			<Name>ProgramManager.Package-View.Overview</Name>
 			<ViewSelectedBy>
-				<TypeName>Foo.Bar</TypeName>
+				<TypeName>ProgramManager.Package-View.Overview</TypeName>
 			</ViewSelectedBy>
-			<TableControl>
-				<AutoSize/>
-				<TableHeaders>
-					<TableColumnHeader/>
-					<TableColumnHeader/>
-				</TableHeaders>
-				<TableRowEntries>
-					<TableRowEntry>
-						<TableColumnItems>
-							<TableColumnItem>
-								<PropertyName>Foo</PropertyName>
-							</TableColumnItem>
-							<TableColumnItem>
-								<PropertyName>Bar</PropertyName>
-							</TableColumnItem>
-						</TableColumnItems>
-					</TableRowEntry>
-				</TableRowEntries>
-			</TableControl>
+			<GroupBy>
+				<Label>Package Name</Label>				
+				<PropertyName>Name</PropertyName>
+			</GroupBy>
+			<ListControl>
+				<ListEntries>
+					<ListEntry>
+						<ListItems>
+							<ListItem>
+								<PropertyName>Type</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Installed</Label>
+								<ScriptBlock>if ($_.IsInstalled -eq $true) { "Yes" }else{ "No" }</ScriptBlock>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Url -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<PropertyName>Url</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.InstallDirectory -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Install Directory</Label>
+								<PropertyName>InstallDirectory</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Note -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Note/Description</Label>
+								<PropertyName>Note</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PreInstallScriptblock) -eq $false</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Pre-Install Script</Label>
+								<ScriptBlock>$_.PreInstallScriptblock</ScriptBlock>
+							</ListItem>	
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PostInstallScriptblock) -eq $false</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Post-Install Script</Label>
+								<ScriptBlock>$_.PostInstallScriptblock</ScriptBlock>
+							</ListItem>
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
+		</View>
+		<View>
+			<Name>ProgramManager.Package-View.Full</Name>
+			<ViewSelectedBy>
+				<TypeName>ProgramManager.Package-View.Full</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<Label>Package Name</Label>				
+				<PropertyName>Name</PropertyName>
+			</GroupBy>
+			<ListControl>
+				<ListEntries>
+					<ListEntry>
+						<ListItems>
+							<ListItem>
+								<PropertyName>Type</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Installed</Label>
+								<ScriptBlock>if ($_.IsInstalled -eq $true) { "Yes" }else{ "No" }</ScriptBlock>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.ExecutableName -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Executable Name</Label>
+								<PropertyName>ExecutableName</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.ExecutableType -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Executable Type</Label>
+								<PropertyName>ExecutableType</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Url -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<PropertyName>Url</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.InstallDirectory -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Install Directory</Label>
+								<PropertyName>InstallDirectory</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>$_.Note -ne $null</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Note/Description</Label>
+								<PropertyName>Note</PropertyName>
+							</ListItem>
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PreInstallScriptblock) -eq $false</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Pre-Install Script</Label>
+								<ScriptBlock>$_.PreInstallScriptblock</ScriptBlock>
+							</ListItem>	
+							<ListItem>
+								<ItemSelectionCondition>
+									<ScriptBlock>[System.String]::IsNullOrWhiteSpace($_.PostInstallScriptblock) -eq $false</ScriptBlock>
+								</ItemSelectionCondition>
+								<Label>Post-Install Script</Label>
+								<ScriptBlock>$_.PostInstallScriptblock</ScriptBlock>
+							</ListItem>
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
 		</View>
 	</ViewDefinitions>
 </Configuration>

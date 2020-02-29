@@ -3,7 +3,7 @@
 	RootModule = 'ProgramManager.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '0.0.1'
+	ModuleVersion = '0.1.0'
 	
 	# ID used to uniquely identify this module
 	GUID = '7572858c-6870-4911-bd85-5b4aef2427b6'
@@ -37,10 +37,16 @@
 	# TypesToProcess = @('xml\ProgramManager.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
+	FormatsToProcess = @('xml\ProgramManager.Format.ps1xml')
 	
 	# Functions to export from this module
-	FunctionsToExport = ''
+	FunctionsToExport = @(
+		'New-PMPackage',
+		'Get-PMPackage',
+		'Set-PMPackage',
+		'Remove-PMPackage',
+		'Invoke-PMInstall'
+	)
 	
 	# Cmdlets to export from this module
 	CmdletsToExport = ''
@@ -64,13 +70,13 @@
 		PSData = @{
 			
 			# Tags applied to this module. These help with module discovery in online galleries.
-			# Tags = @()
+			Tags = @("Windows","Automation","PackageManagement","PSEdition_Core","PSEdition_Desktop")
 			
 			# A URL to the license for this module.
-			# LicenseUri = ''
+			LicenseUri = 'https://mit-license.org/'
 			
 			# A URL to the main website for this project.
-			# ProjectUri = ''
+			ProjectUri = 'https://github.com/KubaP/Powershell-ProgramManager'
 			
 			# A URL to an icon representing this module.
 			# IconUri = ''
