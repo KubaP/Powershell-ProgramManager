@@ -2,10 +2,157 @@
 	about_ProgramManager
 	
 SHORT DESCRIPTION
-	Explains how to use the ProgramManager powershell module
+	ProgramManager is a package-manager like module designed to manage the installation
+	of windows programs.
 	
-LONG DESCRIPTION
-	<Insert Content here>
+ADDING A NEW PACKAGE
+	The manager supports the following types of packages:
+		- Local Package:	executable installer which is stored locally
+		- Url Package:		executable installer which is downloaded from the internet
+		- Portable Package:	executable/program folder which is stored locally
+		
+	
+	For adding a Local Package:
+		
+		New-PMPackage -Name "<name>" -LocalPackage -PackageLocation "<path to installer>"
+		
+		The path must point to an .exe or .msi executable.
+		The executable will be moved to a storage location.
+		
+	For adding a Url Package:
+		
+		New-PMPackage -Name "<name>" -UrlPackage -PackageLocation "<download url>"
+		
+		The url does *not* have to point to the actual file. It can point to the download
+		button and the module will automatically find the redirected path.
+		
+		
+	For adding a Portable Package:
+		
+		New-PMPackage -Name "<name>" -PortablePackage -PackageLocation "<path to program>" `
+			-InstallDirectory "<target directory>"
+		
+		The path must point to an .exe, .zip/.tar, or folder.
+		If the path points to an archive, the module will automatically extract the
+		contents.
+		The file/folder will be moved to a storage location.
+		The install directory is mandatory, and that is the location where the package
+		contents will be copied to on installation.
+		
+	
+	OPTIONAL PARAMETERS
+	
+	-Note
+		
+		Allows you to write a short note/description about the package.
+		
+	-PreInstallScriptblock
+	
+		Allows you to attach a scriptblock which will be executed before package installation.
+		
+	-PostInstallScriptblock
+	
+		Allows you to attach a scriptblock which will be executed after package installation.
+		
+	<CommonParameters>
+		
+		-WhatIf
+		-Confirm
+		-Verbose
+		
+	
+GETTING A PACKAGE
+	To retrieve the details of a package:
+	
+		Get-PMPackage -PackageName "<name>"
+		
+	This will print the package details to screen.
+	The command returns a ProgramManager.Package object, so you can pipe it down.
+	
+	
+	OPTIONAL PARAMETERS
+	
+	-ShowFullDetail
+	
+		Some packages have extra properties, which are designed for internal use, and don't
+		have much use for the user. However, if you wish to view them use this switch.
+		
+	<CommonParameters>
+		
+		-Verbose
+		
+
+SETTING A PACKAGE
+	To set a property of a package:
+	
+		Set-PMPackage -PackageName "<name>" -PropertyName "<property name>" -PropertyValue "<new value>"
+		
+	This will set a specific property of a package to a new value.	
+	-PropertyName has tab-completion support once you've entered a PackageName.
+	
+	
+	OPTIONAL PARAMETERS
+	
+	<CommonParameters>
+		
+		-WhatIf
+		-Confirm
+		-Verbose
+		
+
+REMOVING A PACKAGE
+	To remove a package:
+	
+		Remove-PMPackage -PackageName "<name>"
+		
+	This will remove the package from the manager, and delete any local files.
+	
+	
+	OPTIONAL PARAMETERS
+	
+	-RetainFiles & -Path
+		
+		This will keep any local files and move them to the desired path.
+		This only works on Local-/Url-Packages.
+		
+	<CommonParameters>
+		
+		-WhatIf
+		-Confirm
+		-Verbose
+		
+
+INSTALLING A PACKAGE
+	To install a package:
+	
+		Invoke-PMInstall -PackageName "<name>"
+		
+	This will install the package. It will run any pre- and post- installation scriptblocks
+	if the package has any.
+	-PackageName supports passing an array of names, to install multiple packages with
+	one command.
+	
+	For a Local Package, this command will start the installer.
+	For a Url Package, this command will download and start the installer.
+	For a Portable Package, this command will copy the files to the install directory.
+	
+	
+	OPTIONAL PARAMETERS
+	
+	<CommonParameters>
+		
+		-WhatIf
+		-Confirm
+		-Verbose
+
+
+SCRIPTBLOCKS
+	When running New-PMPackage, you can pass in -PreInstallScriptblock and/or -PostInstallScriptblock.
+	
+	AT THE MOMENT, these have no real function yet.
+	PLANNED: ability to read in the package object for manipulation/data.
+
 
 KEYWORDS
 	ProgramManager
+	
