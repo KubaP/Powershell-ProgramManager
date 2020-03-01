@@ -31,9 +31,11 @@ if (-not $WorkingDirectory) {
 # Prepare publish folder
 Write-Host "Creating and populating publishing directory"
 Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse -ErrorAction SilentlyContinue
-$publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
+$publishDir = New-Item -Path $WorkingDirectory -Name "publish" -ItemType Directory -Force
+
 # Copy the module files from the git repo to the publish folder
-Copy-Item -Path "$($WorkingDirectory)\ProgramManager" -Destination $publishDir.FullName -Recurse -Force
+New-Item -Path $publishDir.FullName -Name "ProgramManager" -ItemType Directory -Force | Out-Null
+Copy-Item -Path "$($WorkingDirectory)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\" -Recurse -Force -Exclude "*tests*"
 
 # Gather text data from scripts to compile
 $text = @()

@@ -2,7 +2,15 @@
 $script:ModuleRoot = $PSScriptRoot
 $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\ProgramManager.psd1").ModuleVersion
 
-$script:DataPath = "$env:USERPROFILE\ProgramManager"
+$script:DataPath = "$env:APPDATA\Powershell\ProgramManager"
+
+if ((Test-Path -Path $script:DataPath) -eq $false) {
+	
+	# Create the folders if they don't exist
+	New-Item -ItemType Directory -Path "$env:APPDATA" -Name "Powershell" -ErrorAction SilentlyContinue
+	New-Item -ItemType Directory -Path "$env:APPDATA\Powershell" -Name "ProgramManager"
+	
+}
 
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = $global:ModuleDebugDotSource
@@ -39,22 +47,22 @@ if ("<was not compiled>" -eq '<was not compiled>') { $importIndividualFiles = $t
 # Imports a module file, either through dot-sourcing or through invoking the script
 function Import-ModuleFile {
 	<#
-		.SYNOPSIS
-			Loads files into the module on module import.
-		
-		.DESCRIPTION
-			This helper function is used during module initialization.
-			It should always be dotsourced itself, in order to proper function.
-			
-			This provides a central location to react to files being imported, if later desired
-		
-		.PARAMETER Path
-			The path to the file to load
-		
-		.EXAMPLE
-			PS C:\> . Import-ModuleFile -File $function.FullName
+	.SYNOPSIS
+		Loads files into the module on module import.
 	
-			Imports the file stored in $function according to import policy
+	.DESCRIPTION
+		This helper function is used during module initialization.
+		It should always be dotsourced itself, in order to proper function.
+		
+		This provides a central location to react to files being imported, if later desired
+	
+	.PARAMETER Path
+		The path to the file to load
+	
+	.EXAMPLE
+		PS C:\> . Import-ModuleFile -File $function.FullName
+		
+		Imports the file stored in $function according to import policy
 	#>
 	[CmdletBinding()]
 	Param (
