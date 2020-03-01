@@ -10,6 +10,7 @@
 	$Repository = 'PSGallery',
 	
 	# Publish to test PSGallery instead
+	# WARNING: This requires PowershellGet v2.2.2 for some reason. With v2.2.3 the command hangs
 	[switch]
 	$TestRepo,
 	
@@ -119,7 +120,6 @@ if ($TestRepo) {
 	Write-Host "Publishing the ProgramManager module to TEST PSGallery"
 	
 	# Register testing repository
-	# TODO: figure out why cannot publish to poshtestgallery
 	Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted
 	Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo"
 	

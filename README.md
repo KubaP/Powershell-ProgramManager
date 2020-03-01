@@ -9,14 +9,14 @@ This module is primarily aimed at someone who wants to easily add new software t
 
 <br>
 
-|Latest Build Status|
-|-|
-|[![Build Status](https://dev.azure.com/KubaP999/ProgramManager/_apis/build/status/ProgramManager_development_CI?branchName=development)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)||
-
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/KubaP999/3d9148d2-04d0-4835-b7cb-7bf89bdbf11b/7?label=Latest%20Build&logo=azure-pipelines)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/ProgramManager)
+![PowerShell Gallery](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
+[![License](https://img.shields.io/badge/License-MIT-blue)](http://badges.mit-license.org)
 
 ## Getting Started
 ### Installation
-In order to get started with the latest build, simply download the module from the [PSGallery](), or install it from powershell by running:
+In order to get started with the latest build, simply download the module from the [PSGallery](https://www.powershellgallery.com/packages/ProgramManager), or install it from powershell by running:
 ```powershell
 Install-Module ProgramManager
 ```
@@ -138,7 +138,6 @@ Feel free to make pull requests if you have an improvement. Only submit a single
 ## License 
 This project is licensed under the MIT license - see [LICENSE.md](./LICENSE) file for details.
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Acknowledgements
 The module framework has been based of the [psframework](https://github.com/PowershellFrameworkCollective/psframework) module template.
