@@ -32,7 +32,8 @@ New-Item -Path "$PSScriptRoot\..\.." -Name TestResults -ItemType Directory -Forc
 $totalFailed = 0
 $totalRun = 0
 
-$testresults = @()
+$allTestResults = @()
+$failedTestResults = @()
 
 # Run General Tests
 if ($TestGeneral) {
@@ -56,7 +57,7 @@ if ($TestGeneral) {
 			# If a test fails, add it to the list
 			$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
 				$name = $_.Name
-				$testresults += [pscustomobject]@{
+				$failedTestResults += [pscustomobject]@{
 					Describe = $_.Describe
 					Context  = $_.Context
 					Name	 = "It $name"
@@ -84,18 +85,23 @@ if ($TestFunctions) {
 		if ($file.Name -like $Exclude) { continue }
 		
 		Write-Host "  Executing $($file.Name)"
+		$functionFile = $file.Name -replace ".Tests",""
 		
 		# Run the tests and save pester output to results file
 		$TestOutputFile = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
-		$results = Invoke-Pester -Script $file.FullName -Show $Show -PassThru -OutputFile $TestOutputFile -OutputFormat NUnitXml
+		$results = Invoke-Pester -Script $file.FullName -Show $Show -CodeCoverage "$PSScriptRoot\..\functions\$functionFile" -PassThru -OutputFile $TestOutputFile -OutputFormat NUnitXml
 		
-		# If a test fails, add it to the list
 		foreach ($result in $results) {
+			
+			# Add the test results to counter
 			$totalRun += $result.TotalCount
 			$totalFailed += $result.FailedCount
+			$allTestResults += $result
+			
+			# If a test fails, add it to the list
 			$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
 				$name = $_.Name
-				$testresults += [pscustomobject]@{
+				$failedTestResults += [pscustomobject]@{
 					Describe = $_.Describe
 					Context  = $_.Context
 					Name	 = "It $name"
@@ -112,7 +118,7 @@ if ($TestFunctions) {
 }
 
 # Show all failed test results in detail
-$testresults | Sort-Object Describe, Context, Name, Result, Message | Format-List
+$failedTestResults | Sort-Object Describe, Context, Name, Result, Message | Format-List
 
 # Display a message at the end
 if ($totalFailed -eq 0) {
@@ -131,3 +137,6 @@ if ($totalFailed -gt 0) {
 	throw "$totalFailed / $totalRun tests failed!"
 	
 }
+
+# Return test results for use in code coverage
+Write-Output $allTestResults -NoEnumerate

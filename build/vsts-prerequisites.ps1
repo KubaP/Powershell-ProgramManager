@@ -1,5 +1,5 @@
 ﻿# The modules which are required for testing
-$modules = @("Pester", "PSScriptAnalyzer")
+$modules = @("Pester", "PSScriptAnalyzer", "PSCodeCovIO")
 
 # Install each module
 foreach ($module in $modules) {

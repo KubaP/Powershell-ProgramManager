@@ -20,6 +20,7 @@
 	
 )
 
+#=======================
 # Handle Working Directory paths within Azure pipelines
 if (-not $WorkingDirectory) {
 	if ($env:RELEASE_PRIMARYARTIFACTSOURCEALIAS) {
@@ -28,6 +29,7 @@ if (-not $WorkingDirectory) {
 	else { $WorkingDirectory = $env:SYSTEM_DEFAULTWORKINGDIRECTORY }
 }
 
+#=======================
 # Prepare publish folder
 Write-Host "Creating and populating publishing directory"
 Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse -ErrorAction SilentlyContinue
@@ -37,6 +39,7 @@ $publishDir = New-Item -Path $WorkingDirectory -Name "publish" -ItemType Directo
 New-Item -Path $publishDir.FullName -Name "ProgramManager" -ItemType Directory -Force | Out-Null
 Copy-Item -Path "$($WorkingDirectory)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\" -Recurse -Force -Exclude "*tests*"
 
+#=======================
 # Gather text data from scripts to compile
 $text = @()
 $processed = @()
@@ -104,6 +107,7 @@ foreach ($line in (Get-Content "$($PSScriptRoot)\filesAfter.txt" | Where-Object 
 	
 }
 
+#=======================
 # Update the psm1 file with all the read-in text content
 # This is done to reduce load times for the module, if all code is within the single psm1 file
 $fileData = Get-Content -Path "$($publishDir.FullName)\ProgramManager\ProgramManager.psm1" -Raw
@@ -113,6 +117,13 @@ $fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
 [System.IO.File]::WriteAllText("$($publishDir.FullName)\ProgramManager\ProgramManager.psm1", $fileData, [System.Text.Encoding]::UTF8)
 
+#=======================
+# Create Artifact
+# TODO: create and publish artifacts
+
+
+
+#=======================
 # Publish
 if ($SkipPublish) { return }
 
