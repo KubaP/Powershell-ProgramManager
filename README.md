@@ -9,10 +9,11 @@ This module is primarily aimed at someone who wants to easily add new software t
 
 <br>
 
-[![Azure DevOps builds](https://img.shields.io/azure-devops/build/KubaP999/3d9148d2-04d0-4835-b7cb-7bf89bdbf11b/7?label=Latest%20Build&logo=azure-pipelines)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/KubaP999/3d9148d2-04d0-4835-b7cb-7bf89bdbf11b/7?label=latest%20build&logo=azure-pipelines)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
+[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/KubaP999/ProgramManager/7?logo=codecov&logoColor=white)](https://dev.azure.com/KubaP999/ProgramManager/_build/latest?definitionId=7&branchName=development)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ProgramManager?logo=powershell&logoColor=white)](https://www.powershellgallery.com/packages/ProgramManager)
-![PowerShell Gallery](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
-[![License](https://img.shields.io/badge/License-MIT-blue)](http://badges.mit-license.org)
+![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/ProgramManager?logo=windows)
+[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 ## Getting Started
 ### Installation
