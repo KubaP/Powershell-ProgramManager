@@ -1,14 +1,16 @@
 ﻿param (
 	# Whether to run general tests
-	$TestGeneral = $false,
+	$TestGeneral = $true,
 	
 	# Whether to run function tests
 	$TestFunctions = $true,
 	
 	# Controls how much verbose output pester shows during running
-	[ValidateSet('None', 'Default', 'Passed', 'Failed', 'Pending', 'Skipped', 'Inconclusive', 'Describe', 'Context', 'Summary', 'Header', 'Fails', 'All')]
-	$Show = "None",
+	# WARNING: Running Invoke-Pester with -Show 'None' doesn't generate a code coverage report properly; seems like a bug
+	[ValidateSet('Default', 'Passed', 'Failed', 'Pending', 'Skipped', 'Inconclusive', 'Describe', 'Context', 'Summary', 'Header', 'Fails', 'All')]
+	$Show = "Describe",
 	
+	# TODO: re-add filter logic
 	# Files to include
 	$Include = "*",
 	
@@ -32,20 +34,20 @@ New-Item -Path "$PSScriptRoot\..\.." -Name TestResults -ItemType Directory -Forc
 $totalFailed = 0
 $totalRun = 0
 
-$allTestResults = @()
 $failedTestResults = @()
 
 # Run General Tests
-if ($TestGeneral) {
-	Write-Host "Modules imported, proceeding with general tests"
+# Since some of these tests run on the whole codebase, code coverage results would be pointless so they're not done
+if ($TestGeneral -eq $true) {
+	Write-Host "Running general tests"
 	
 	# Run through every test file located in \general\
 	foreach ($file in (Get-ChildItem "$PSScriptRoot\general" | Where-Object Name -like "*.Tests.ps1")) {
 		
 		Write-Host "  Executing $($file.Name)"
 		
-		# Run the tests and save pester output to results file
-		$TestOutputFile = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
+		# Run the tests and save pester output to variable
+		$TestOutputFile = "$PSScriptRoot\..\..\TestResults\TEST-General-$($file.BaseName).xml"
 		$results = Invoke-Pester -Script $file.FullName -Show $Show -PassThru -OutputFile $TestOutputFile -OutputFormat NUnitXml
 		
 		foreach ($result in $results) {
@@ -73,7 +75,7 @@ if ($TestGeneral) {
 	
 }
 
-# Test module commands
+# Run module command tests
 if ($TestFunctions -eq $true) {
 	Write-Host "Running individual tests"
 		
@@ -82,7 +84,6 @@ if ($TestFunctions -eq $true) {
 	$functionFiles += Get-ChildItem -Path "$PSScriptRoot\..\internal\functions\" -Recurse -Include "*.ps1"
 	
 	# Run all function tests
-	Write-Host $functionFiles
 	$results = Invoke-Pester -Script "$PSScriptRoot\functions\*" -PassThru -Show $Show -CodeCoverage $functionFiles.FullName -CodeCoverageOutputFile "$PSScriptRoot\..\..\TestResults\CodeCov-Functions.xml" -OutputFile "$PSScriptRoot\..\..\TestResults\TEST-Functions.xml" -OutputFormat NUnitXml
 	
 	foreach ($result in $results) {
@@ -90,7 +91,6 @@ if ($TestFunctions -eq $true) {
 		# Add the test results to counter
 		$totalRun += $result.TotalCount
 		$totalFailed += $result.FailedCount
-		#$allTestResults += $result
 		
 		# If a test fails, add it to the list
 		$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
@@ -115,11 +115,11 @@ $failedTestResults | Sort-Object Describe, Context, Name, Result, Message | Form
 # Display a message at the end
 if ($totalFailed -eq 0) {
 	
-	Write-Host "All $totalRun tests executed without a single failure!"
+	Write-Host "All $totalRun tests executed without a single failure!" -ForegroundColor Green
 	 
 }else { 
 	
-	Write-Host "$totalFailed tests out of $totalRun tests failed!" 
+	Write-Host "$totalFailed tests out of $totalRun tests failed!" -ForegroundColor Red
 	
 }
 
@@ -129,6 +129,3 @@ if ($totalFailed -gt 0) {
 	throw "$totalFailed / $totalRun tests failed!"
 	
 }
-
-# Return test results for use in code coverage
-Write-Output $allTestResults -NoEnumerate

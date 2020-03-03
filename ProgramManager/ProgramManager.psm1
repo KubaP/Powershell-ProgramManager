@@ -6,7 +6,7 @@ $script:DataPath = "$env:APPDATA\Powershell\ProgramManager"
 
 if ((Test-Path -Path $script:DataPath) -eq $false) {
 	
-	# Create the folders if they don't exist
+	# Create the module data storage folders if they don't exist
 	New-Item -ItemType Directory -Path "$env:APPDATA" -Name "Powershell" -ErrorAction SilentlyContinue
 	New-Item -ItemType Directory -Path "$env:APPDATA\Powershell" -Name "ProgramManager"
 	
@@ -14,11 +14,9 @@ if ((Test-Path -Path $script:DataPath) -eq $false) {
 
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = $global:ModuleDebugDotSource
-if ($ProgramManager_dotsourcemodule) { $script:doDotSource = $true }
-
+$script:doDotSource = $true
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
 $importIndividualFiles = $global:ModuleDebugIndividualFiles
-if ($ProgramManager_importIndividualFiles) { $importIndividualFiles = $true }
 
 # Resolve-Path function which deals with non-existent paths
 function Resolve-Path_i {
@@ -41,6 +39,7 @@ function Resolve-Path_i {
 	$resolvedPath
 }
 
+# If script detects its running from original dev environment, import individually since module won't be compiled
 if (Test-Path (Resolve-Path_i -Path "$($script:ModuleRoot)\..\.git")) { $importIndividualFiles = $true }
 if ("<was not compiled>" -eq '<was not compiled>') { $importIndividualFiles = $true }
 
@@ -70,40 +69,47 @@ function Import-ModuleFile {
 		$Path # Path of module file
 	)
 	
-	#Get the resolved path to avoid any cross-OS issues
+	# Get the resolved path to avoid any cross-OS issues
 	$resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
 	if ($doDotSource) {
-		Write-Host "dot sourcing"
-		#. $resolvedPath 
-		. $Path
+		
+		# Load the script through dot-sourcing
+		. $resolvedPath
+		
 	}else {
-		Write-Host "not dot sourcing"
+		
+		# Load the script through different method (unknown atm)
 		$ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null) 
+		
 	}
 }
-$script:doDotSource = $true
-#region Load individual files
+
+# Load individual files if not compiled
 if ($importIndividualFiles) {
+	
 	# Execute Preimport actions
 	. Import-ModuleFile -Path "$ModuleRoot\internal\scripts\preimport.ps1"
 	
 	# Import all internal functions
-	foreach ($function in (Get-ChildItem "$ModuleRoot\internal\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {				
+	foreach ($function in (Get-ChildItem "$ModuleRoot\internal\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
+						
 		. Import-ModuleFile -Path $function.FullName
+		
 	}
 	
 	# Import all public functions
-	foreach ($function in (Get-ChildItem "$ModuleRoot\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {		
+	foreach ($function in (Get-ChildItem "$ModuleRoot\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {	
+			
 		. Import-ModuleFile -Path $function.FullName
+		
 	}
 	
 	# Execute Postimport actions
 	. Import-ModuleFile -Path "$ModuleRoot\internal\scripts\postimport.ps1"
 	
-	# End it here, do not load compiled code below
+	# End execution here, do not load compiled code below
 	return
 }
-#endregion Load individual files
 
 #region Load compiled code
 "<compile code into here>"
