@@ -73,12 +73,15 @@ function Import-ModuleFile {
 	#Get the resolved path to avoid any cross-OS issues
 	$resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
 	if ($doDotSource) {
-		. $resolvedPath 
+		Write-Host "dot sourcing"
+		#. $resolvedPath 
+		. $Path
 	}else {
+		Write-Host "not dot sourcing"
 		$ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null) 
 	}
 }
-
+$script:doDotSource = $true
 #region Load individual files
 if ($importIndividualFiles) {
 	# Execute Preimport actions

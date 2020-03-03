@@ -1,6 +1,6 @@
 ﻿param (
 	# Whether to run general tests
-	$TestGeneral = $true,
+	$TestGeneral = $false,
 	
 	# Whether to run function tests
 	$TestFunctions = $true,
@@ -17,9 +17,9 @@
 )
 
 Write-Host "Starting Tests"
-Write-Host "Importing Module"
 
 # Remove and re-import the module
+Write-Host "Importing Module"
 Remove-Module ProgramManager -ErrorAction Ignore
 Import-Module "$PSScriptRoot\..\ProgramManager.psd1"
 Import-Module "$PSScriptRoot\..\ProgramManager.psm1" -Force
@@ -73,42 +73,34 @@ if ($TestGeneral) {
 	
 }
 
-# Test Commands
-if ($TestFunctions) {
-	Write-Host "Proceeding with individual tests"
+# Test module commands
+if ($TestFunctions -eq $true) {
+	Write-Host "Running individual tests"
+		
+	# Get list of all functions being tested, for code coverage calculations
+	$functionFiles = Get-ChildItem -Path "$PSScriptRoot\..\functions\" -Recurse -Include "*.ps1"
+	$functionFiles += Get-ChildItem -Path "$PSScriptRoot\..\internal\functions\" -Recurse -Include "*.ps1"
 	
-	# Run through every test file located in \functions\
-	foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*Tests.ps1")) {
-		
-		# Check that the file matches the given filters
-		if ($file.Name -notlike $Include) { continue }
-		if ($file.Name -like $Exclude) { continue }
-		
-		Write-Host "  Executing $($file.Name)"
-		$functionFile = $file.Name -replace ".Tests",""
-		
-		# Run the tests and save pester output to results file
-		$TestOutputFile = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
-		$results = Invoke-Pester -Script $file.FullName -Show $Show -CodeCoverage "$PSScriptRoot\..\functions\$functionFile" -PassThru -OutputFile $TestOutputFile -OutputFormat NUnitXml
-		
-		foreach ($result in $results) {
+	# Run all function tests
+	Write-Host $functionFiles
+	$results = Invoke-Pester -Script "$PSScriptRoot\functions\*" -PassThru -Show $Show -CodeCoverage $functionFiles.FullName -CodeCoverageOutputFile "$PSScriptRoot\..\..\TestResults\CodeCov-Functions.xml" -OutputFile "$PSScriptRoot\..\..\TestResults\TEST-Functions.xml" -OutputFormat NUnitXml
+	
+	foreach ($result in $results) {
 			
-			# Add the test results to counter
-			$totalRun += $result.TotalCount
-			$totalFailed += $result.FailedCount
-			$allTestResults += $result
-			
-			# If a test fails, add it to the list
-			$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
-				$name = $_.Name
-				$failedTestResults += [pscustomobject]@{
-					Describe = $_.Describe
-					Context  = $_.Context
-					Name	 = "It $name"
-					Result   = $_.Result
-					Message  = $_.FailureMessage
-				}
-				
+		# Add the test results to counter
+		$totalRun += $result.TotalCount
+		$totalFailed += $result.FailedCount
+		#$allTestResults += $result
+		
+		# If a test fails, add it to the list
+		$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
+			$name = $_.Name
+			$failedTestResults += [pscustomobject]@{
+				Describe = $_.Describe
+				Context  = $_.Context
+				Name	 = "It $name"
+				Result   = $_.Result
+				Message  = $_.FailureMessage
 			}
 			
 		}
