@@ -1,4 +1,6 @@
 ﻿# Changelog
+## 0.1.1 (2020-03-05)
+ - Fix: Moved the module storage folder to %appdata%.
 ## 0.1.0 (2020-02-26)
  - New: Command New-PMPackage: Supports local/url/portable packages and all planned optional parameters.
  - New: Command Get-PMPackage: Passes object down pipeline and has proper formatting types support.
