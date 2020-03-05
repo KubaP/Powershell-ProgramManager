@@ -1,0 +1,28 @@
+TOPIC
+	about_ProgramManager_scriptblocks
+	
+SHORT DESCRIPTION
+	The ProgramManager module supports running custom scriptblocks on installation
+	of packages.
+    
+SCRIPTBLOCK OVERVIEW
+    The Pre-InstallScriptblock runs before the main installation logic is executed.
+    This will be before any package is copied/installer starts etc.
+    
+    The Post-InstallScriptblock runs after the main installation logic is executed.
+    This will be after any package is copied/installer finishes and exits.
+    
+    You can run any arbitrary code within these scriptblocks. There is no limit to what
+    you can do. Bear in mind that complex scripts will increase execution time.
+	
+    
+SCRIPTBLOCK SETUP
+    To utilise the full potential of the scriptblocks, you can manipulate data passed
+    in from the Invoke-PMInstall command.
+    
+    Whilst you can recieve package data, any changes you do will be lost, as the object
+    is never returned back to the main Invoke-PMInstall function.
+    
+KEYWORDS
+	ProgramManager
+    	

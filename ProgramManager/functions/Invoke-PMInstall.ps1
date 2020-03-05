@@ -93,7 +93,7 @@
 				# Convert the string into a scriptblock and execute
 				Write-Verbose "Coverting scriptblock and executing it"
 				$scriptblock = [scriptblock]::Create($package.PreInstallScriptblock)
-				Invoke-Command -ScriptBlock $scriptblock
+				Invoke-Command -ScriptBlock $scriptblock -ArgumentList $package
 				
 			}
 			
@@ -248,7 +248,7 @@
 				# Convert string to scriptblock and execute
 				Write-Verbose "Coverting scriptblock and executing it"
 				$scriptblock = [scriptblock]::Create($package.PostInstallScriptblock)
-				Invoke-Command -ScriptBlock $scriptblock
+				Invoke-Command -ScriptBlock $scriptblock -ArgumentList $package
 				
 			}
 			
