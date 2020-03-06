@@ -82,7 +82,7 @@
 			# IconUri = ''
 			
 			# ReleaseNotes of this module
-			# ReleaseNotes = ''
+			ReleaseNotes = 'https://github.com/KubaP/Powershell-ProgramManager/blob/master/ProgramManager/changelog.md'
 			
 		} # End of PSData hashtable
 		
