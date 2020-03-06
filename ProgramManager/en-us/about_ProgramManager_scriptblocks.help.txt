@@ -1,0 +1,67 @@
+﻿TOPIC
+	about_ProgramManager_scriptblocks
+	
+SHORT DESCRIPTION
+	The ProgramManager module supports running custom scriptblocks on installation
+	of packages.
+	
+SCRIPTBLOCK OVERVIEW
+	The Pre-InstallScriptblock runs before the main installation logic is executed.
+	This will be before any package is copied/installer starts etc.
+	
+	The Post-InstallScriptblock runs after the main installation logic is executed.
+	This will be after any package is copied/installer finishes and exits.
+	
+	You can run any arbitrary code within these scriptblocks. There is no limit to what
+	you can do. Bear in mind that complex scripts will increase execution time.
+	
+	
+	An example of use cases for these scriptblocks:
+		- Replace the program data folder in %appdata% with a symlink pointing to a
+			folder containing the data in a different location.
+		- Create a shortcut for a portable program and place it in the Start Menu.
+		- Copy over data files to a hardcoded folder which can't be symlinked.
+	
+SCRIPTBLOCK SETUP
+	To utilise the full potential of the scriptblocks, you can manipulate data passed
+	in from the Invoke-PMInstall command.
+	
+	Whilst you can receive package data, any changes you do will be lost, as the object
+	is never returned back to the main Invoke-PMInstall function.
+	
+	
+	Include this parameter definition in the scriptblock to get the ProgramManager.Package object:
+	
+		Param (
+			
+			# The package object corresponding to the package being currently installed
+			[System.Collections.Generic.List[psobject]]
+			$package
+			
+		)
+		
+	
+	To see a full list of ProgramManager.Package object properties, run: Get-PMPackage "<name>" -ShowFullDetail
+		
+SCRIPTBLOCK EXAMPLE
+	
+	$scriptblock = {
+	Param (
+		
+		# The package object of the package being currently installed
+		[System.Collections.Generic.List[psobject]]
+		$package
+		
+	)
+	
+	Remove-Item -Path "%appdata%\Code\User" -Recurse -Force -ErrorAction SilentlyContinue
+	New-Item -ItemType SymbolicLink -Path "%appdata%\Code\User" -Value "D:\Programs\Data\VSCode"
+	
+	}
+	
+	This example redirects the User profile folder for Visual Studio Code to a location on the D:\ drive.
+	This scriptblock is run post-installation.
+		
+KEYWORDS
+	ProgramManager
+		
