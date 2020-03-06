@@ -73,6 +73,9 @@
 	.OUTPUTS
 		None
 		
+	.NOTES
+		For detailed information regarding the scriptblocks, see: about_ProgramManager_scriptblocks
+		
 	#>	
 	
 	[CmdletBinding(DefaultParameterSetName = "LocalInstaller", SupportsShouldProcess = $true, ConfirmImpact = "Medium")]

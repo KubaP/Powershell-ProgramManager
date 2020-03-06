@@ -149,10 +149,13 @@ INSTALLING A PACKAGE
 SCRIPTBLOCKS
 	When running New-PMPackage, you can pass in -PreInstallScriptblock and/or -PostInstallScriptblock.
 	
-	AT THE MOMENT, these have no real function yet.
-	PLANNED: ability to read in the package object for manipulation/data.
-
-
+	For details, see: about_ProgramManager_scriptblocks
+	
+OTHER
+	The module stores all data in %appdata%\Powershell\ProgramManager
+	It is advised to **not** manually modify any files within this directory as it could cause
+	unintended consequences.
+	
 KEYWORDS
 	ProgramManager
 	

@@ -27,7 +27,7 @@ Import-Module ProgramManager
 ```
 
 ### Requirements
-This module requires `powershell core v6.2.1` minimum. Although there is nothing to stop this module from working on `v5.1`, it has not been tested so proceed at own risk.
+This module requires `powershell 5.1` minimum. Works with `powershell core` as well.
 
 This module only works on **Windows**, since it's designed around windows-based executables/programs.
 
@@ -100,7 +100,9 @@ The functions support advanced tab-completion for values:
 - The `-PropertyName` parameter supports tab-completion once a `-PackageName` is given in.
 
 #### Custom scriptblock support
-When adding a new package, you can pass in a scriptblock for `-PreInstallScriptblock` or `-PostInstallScriptblock`. These scriptblocks will execute during package installation. **Still WIP**
+When adding a new package, you can pass in a scriptblock for `-PreInstallScriptblock` or `-PostInstallScriptblock`. These scriptblocks will execute during package installation.
+
+For details, see `about_ProgramManager_scriptblocks`.
 
 #### -WhatIf and -Confirm support
 All functions in this module support these parameters when appropiate.
