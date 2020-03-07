@@ -16,7 +16,11 @@
 	
 	# Build but don't publish
 	[switch]
-	$SkipPublish
+	$SkipPublish,
+	
+	# Build but don't create artifacts
+	[switch]
+	$SkipArtifact
 	
 )
 
@@ -118,39 +122,49 @@ $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n")
 [System.IO.File]::WriteAllText("$($publishDir.FullName)\ProgramManager\ProgramManager.psm1", $fileData, [System.Text.Encoding]::UTF8)
 
 #=======================
-# Create Artifact
-# TODO: create and publish artifacts
+# Publish
+if ($SkipPublish -eq $false) {
+	
+	if ($TestRepo -eq $true) {
+		
+		# Publish to TESTING PSGallery
+		Write-Host "Publishing the ProgramManager module to TEST PSGallery"
+		
+		# Register testing repository
+		Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted
+		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo"
+		
+		Write-Host "Published package to test repo. Waiting 30 seconds."
+		Start-Sleep -Seconds 30
+		
+		# Uninstall module if it already exists, to then install the test-module
+		Uninstall-Module -Name "ProgramManager" -Force
+		Install-Module -Name "ProgramManager" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck
+		Write-Host "Test ProgramManager module installed"
+		
+		# Remove the testing repository
+		Unregister-PSRepository -Name "test-repo"
+		
+	}else {
+		
+		# Publish to PSGallery
+		Write-Host "Publishing the ProgramManager module to $($Repository)"
+		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository $Repository
+		
+	}
 
-
+}
 
 #=======================
-# Publish
-if ($SkipPublish) { return }
-
-if ($TestRepo) {
+# Create Artifact
+if ($SkipArtifact -eq $false) {
 	
-	# Publish to TESTING PSGallery
-	Write-Host "Publishing the ProgramManager module to TEST PSGallery"
+	$moduleVersion = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\ProgramManager\ProgramManager.psd1").ModuleVersion
+	# Move the module contents to the desired folder structure
+	New-Item -ItemType Directory -Path "$($publishDir.FullName)\ProgramManager" -Name "$moduleVersion"
+	Move-Item -Path "$($publishDir.FullName)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\$moduleVersion" -Exclude "*$moduleVersion"
 	
-	# Register testing repository
-	Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted
-	Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo"
-	
-	Write-Host "Published package to test repo. Waiting 30 seconds."
-	Start-Sleep -Seconds 30
-	
-	# Uninstall module if it already exists, to then install the test-module
-	Uninstall-Module -Name "ProgramManager" -Force
-	Install-Module -Name "ProgramManager" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck
-	Write-Host "Test ProgramManager module installed"
-	
-	# Remove the testing repository
-	Unregister-PSRepository -Name "test-repo"
-	
-}else {
-	
-	# Publish to PSGallery
-	Write-Host "Publishing the ProgramManager module to $($Repository)"
-	Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository $Repository
+	# Create a packaged zip file
+	Compress-Archive -Path "$($publishDir.FullName)\ProgramManager" -DestinationPath "$($publishDir.FullName)\ProgramManager-v$($moduleVersion).zip"
 	
 }

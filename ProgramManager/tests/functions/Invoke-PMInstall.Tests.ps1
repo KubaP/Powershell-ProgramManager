@@ -334,6 +334,35 @@
 			
 		}
 		
-	}  
+		It "Given no database file present" -TestCases @(
+			
+			# The different valid test cases for a packagename
+			@{ PackageName = "" }
+			@{ PackageName = " " }
+			@{ PackageName = "*" }
+			@{ PackageName = "." }
+			@{ PackageName = ".*" }
+			@{ PackageName = "asdasdagfsag" }
+			@{ PackageName = "afhSDGj%^^7RHDFGH" }
+			@{ PackageName = "..." }
+			@{ PackageName = "   " }
+			
+		) {
+			
+			# Pass test case data into the test body
+			Param ($PackageName)
+			
+			# Run the command
+			Invoke-PMInstall -PackageName $PackageName
+			
+			# Check that the warning message was properly sent
+			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+				$DisplayWarning -eq $true
+			}
+			
+		}
+		
+	} 
+	 
 	
 }

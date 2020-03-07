@@ -45,7 +45,8 @@
 		'Get-PMPackage',
 		'Set-PMPackage',
 		'Remove-PMPackage',
-		'Invoke-PMInstall'
+		'Invoke-PMInstall',
+		'Invoke-PMUninstall'
 	)
 	
 	# Cmdlets to export from this module
