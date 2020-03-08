@@ -4,7 +4,7 @@
 		Uninstalls a ProgramManager package.
 		
 	.DESCRIPTION
-		Invokes an uninstallation process on a ProgramManager.Package which is already installed.
+		Invokes an uninstallation process on a ProgramManager.Package that is already installed.
 		
 	.PARAMETER PackageName
 		The name of the ProgramManager package to uninstall.
@@ -92,6 +92,20 @@
 			
 		}
 		
+		# Check if the package has a on-uninstall scriptblock to run
+		Write-Verbose "Checking for uninstall scriptblock"
+		if ([System.String]::IsNullOrWhiteSpace($package.UninstallScriptblock) -eq $false) {
+			
+			if ($PSCmdlet.ShouldProcess("uninstall scriptblock from package:{$name}", "Execute scriptblock")) {
+				
+				# Convert the string into a scriptblock and execute
+				Write-Verbose "Coverting scriptblock and executing it"
+				$scriptblock = [scriptblock]::Create($package.UninstallScriptblock)
+				Invoke-Command -ScriptBlock $scriptblock -ArgumentList $package
+				
+			}
+			
+		}
 		
 		# Main uninstallation logic
 		if ($package.Type -eq "LocalPackage" -or $package.Type -eq "UrlPackage") {
@@ -99,7 +113,7 @@
 			# Launch control panel to allow user to uninstall program, since there is no real
 			# way of uninstalling programs installed through a standard exe installer
 			Write-Verbose "Launching Control Panel"
-			& appwiz.cpl
+			Start-Process appwiz.cpl
 			
 		}elseif ($package.Type -eq "PortablePackage") {
 			
@@ -120,7 +134,6 @@
 			# TODO: invoke chocolatey uninstall
 			
 		}
-		
 		
 		# Set the installed flag for the package
 		Write-Verbose "Setting installed flag to false"

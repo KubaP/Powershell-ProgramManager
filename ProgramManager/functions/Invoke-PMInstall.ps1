@@ -76,6 +76,7 @@
 		# Get the package by name
 		Write-Verbose "Retrieving the ProgramManager.Package Object"
 		$package = $packageList | Where-Object { $_.Name -eq $name }
+		
 		# Warn the user if the name is invalid
 		if ($null -eq $package) {
 			
@@ -186,18 +187,18 @@
 			
 		}elseif ($package.Type -eq "PortablePackage") {
 			
-			# Check that the install directory exists, otherwise abort
-			if ((Test-Path -Path $package.InstallDirectory) -eq $false) {
-				
-				Write-Message -Message "The install directory doesn't exist: $($package.InstallDirectory)" -DisplayWarning
-				return
-				
-			}
-			
 			# Check that the install directory doesn't contain any characters which could cause potential issues
 			if ($package.InstallDirectory -like "*.``**" -or $package.InstallDirectory -like "*``**" -or $package.InstallDirectory -like "*.*") {
 				
 				Write-Message -Message "The package install directory contains invalid characters" -DisplayWarning
+				return
+				
+			}
+			
+			# Check that the install directory exists, otherwise abort
+			if ((Test-Path -Path $package.InstallDirectory) -eq $false) {
+				
+				Write-Message -Message "The install directory doesn't exist: $($package.InstallDirectory)" -DisplayWarning
 				return
 				
 			}
