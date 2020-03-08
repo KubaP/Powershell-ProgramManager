@@ -27,9 +27,9 @@
 		
 	.PARAMETER PackageLocation
 		The location of the package.
-		- For LocalPackage: file path pointing to the executable
-		- For UrlPackage: url pointing to download link
-		- For PortablePackaage: file path pointing to the folder
+		- For Local-Package: file path pointing to the executable
+		- For Url-Package: url pointing to download link
+		- For Portable-Package: file path pointing to the folder/archive/executable
 		
 	.PARAMETER InstallDirectory
 		The directory to which install the pacakge to.
@@ -45,6 +45,9 @@
 		
 	.PARAMETER PostInstallScriptblock
 		A script block which will be executed after the main package installation process.
+		
+	.PARAMETER UninstallScriptblock
+		A script block which will be executed before the uninstallation process.
 		
 	.PARAMETER Confirm
 		If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
@@ -148,7 +151,15 @@
 		[Parameter(ParameterSetName = "ChocolateyPackage")]
 		[AllowEmptyString()]
 		[scriptblock]
-		$PostInstallScriptblock
+		$PostInstallScriptblock,
+		
+		[Parameter(ParameterSetName = "LocalPackage")]
+		[Parameter(ParameterSetName = "UrlPackage")]
+		[Parameter(ParameterSetName = "PortablePackage")]
+		[Parameter(ParameterSetName = "ChocolateyPackage")]
+		[AllowEmptyString()]
+		[scriptblock]
+		$UninstallScriptblock
 		
 	)
 	
@@ -164,7 +175,7 @@
 		
 	}
 	
-	# Check that the name doesn't contain any characters which could cause potential issues
+	# Check that the name doesn't contain any characters which could cause potential issues further down the line
 	if ($Name -like "*.*" -or $Name -like "*``**" -or $Name -like "*.``**") {
 		
 		Write-Message -Message "The name contains invalid characters" -DisplayWarning
@@ -172,7 +183,7 @@
 		
 	}
 	
-	# Check if name is already taken
+	# Check if name is already taken to avoid conflicts
 	$package = $packageList | Where-Object { $_.Name -eq $Name }
 	if ($null -ne $package) {
 		
@@ -199,6 +210,7 @@
 		}
 		
 	}
+	
 	if ($null -ne $PostInstallScriptblock) {
 		
 		if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $true) {
@@ -217,12 +229,30 @@
 		
 	}
 	
-	# Create PMpackage object	
+	if ($null -ne $UninstallScriptblock) {
+		
+		if ([System.String]::IsNullOrWhiteSpace($UninstallScriptblock.ToString()) -eq $true) {
+			
+			Write-Message -Message "The Uninstall Scriptblock cannot be empty" -DisplayWarning
+			return
+			
+		}
+		
+		if ($UninstallScriptblock.ToString() -like "``*") {
+			
+			Write-Message -Message "The Uninstall Scriptblock cannot just be '*'" -DisplayWarning
+			return
+			
+		}
+		
+	}
+	
+	# Create new PMpackage object and set its object type
 	Write-Verbose "Creating new ProgramManager.Package Object"
 	$package = New-Object -TypeName psobject 
 	$package.PSObject.TypeNames.Insert(0, "ProgramManager.Package")
 	
-	# Add compulsory properties
+	# Add compulsory properties which all packages will have irrespective of type
 	Write-Verbose "Adding universal properties to object: name,type,isinstalled"
 	$package | Add-Member -Type NoteProperty -Name "Name" -Value $Name
 	$package | Add-Member -Type NoteProperty -Name "Type" -Value $PSCmdlet.ParameterSetName
@@ -248,9 +278,9 @@
 	}
 	
 	# Check that the path doesn't contain any characters which could cause potential issues or undesirable effects
-	if ($PackageLocation -like "." -or $PackageLocation -like ".``*" -or $PackageLocation -like "~" -or $PackageLocation -like ".." `
-		-or $PackageLocation -like "...") {
-			
+	if ($PackageLocation -like "." -or $PackageLocation -like "~" -or $PackageLocation -like ".." `
+		-or $PackageLocation -like "..." -or $PackageLocation -like "*``**" -or $PackageLocation -like "*.") {
+		
 		Write-Message -Message "The path provided is not accepted for safety reasons" -DisplayWarning
 		return
 		
@@ -259,7 +289,7 @@
 	if ($LocalPackage -eq $true) {
 		Write-Verbose "Detected Local-Pacakge"
 		
-		# Check that the path is valid
+		# Check that the installer path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
 			
 			Write-Message -Message "There is no valid path pointing to: $PackageLocation" -DisplayWarning
@@ -331,7 +361,7 @@
 			
 		}
 		
-		# Check that the path is valid
+		# Check that the file path is valid
 		if ((Test-Path -Path $PackageLocation) -eq $false) {
 			
 			Write-Message -Message "There is no folder/file located at the path: $PackageLocation" -DisplayWarning
@@ -382,43 +412,48 @@
 					
 				}
 				
-				# Set the current directory to the extracted-archive location, initialising for the do-loop
+				# Set the current directory to the extracted-archive location, initialising loop
 				$currentDir = "$script:DataPath\temp"
 				
 				# Recursively look into the folder heirarchy until there is no more folders containing a single folder
-				# i.e. stops having folder1 -> folder2 -> folder3 -> contents
+				# i.e. stops having structure: folder1 -> folder2 -> folder3 -> contents(exe,libs,etc)
 				do {
 					
 					# Get all children within the current folder
 					$children = Get-ChildItem -Path $currentDir
 					
 					# If there is only a single child and its a folder, move down the tree
-					# Otherwise move the item to the package store
 					if ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true) {
 						
 						$currentDir = $children.FullName
 						
 					}else {
 						
+						# Otherwise move the item to the package store
 						if ($PSCmdlet.ShouldProcess("Folder: $currentDir", "Move the package container to the package store")) {
+							
 							Write-Verbose "Moving folder to \packages\$Name\"
 							Move-Item -Path $currentDir -Destination "$script:DataPath\packages\$Name" -Confirm:$false
 						}
+						
 						
 					}
 					
 				} while ($children.Count -eq 1 -and $children[0].PSIsContainer -eq $true)
 				
+				# Clean up the left-over folders
 				Write-Verbose "Cleaning up \temp\"
 				Remove-Item -Path "$script:DataPath\temp\" -Recurse -Force -Confirm:$false
 				
 			}elseif ($file.Extension -eq ".exe") {
 				
 				if ($PSCmdlet.ShouldProcess("File: $PackageLocation", "Move the executable to the package store")) {
-					# This is a portable package with only a single exe file
+					
+					# This is a portable package with only a single exe file, so move it straight to package store
 					Write-Verbose "Detected executable. Moving program to \packages\$Name\"
 					New-Item -ItemType Directory -Path "$script:DataPath\packages\$Name\" -Confirm:$false | Out-Null
 					Move-Item -Path $PackageLocation -Destination "$script:DataPath\packages\$Name\$($file.Name)" -Confirm:$false
+					
 				}
 				
 			}else {
@@ -464,6 +499,13 @@
 		
 		Write-Verbose "Adding property: post-install scriptblock"
 		$package | Add-Member -Type NoteProperty -Name "PostInstallScriptblock" -Value $PostInstallScriptblock.ToString()
+	
+	}
+	
+	if ($null -ne $UninstallScriptblock) {
+		
+		Write-Verbose "Adding property: post-install scriptblock"
+		$package | Add-Member -Type NoteProperty -Name "UninstallScriptblock" -Value $UninstallScriptblock.ToString()
 	
 	}
 	

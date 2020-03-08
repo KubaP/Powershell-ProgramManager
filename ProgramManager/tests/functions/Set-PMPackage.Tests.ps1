@@ -10,7 +10,7 @@
 	
 	It "Given valid parameters: PackageName <PackageName>; PropertyName <PropertyName>; PropertyValue <PropertyValue>; It should correctly edit the data" -TestCases @(
 		
-		# The different valid test cases for a local package (exe and msi)
+		# The different valid test cases for package and associated property names
 		@{ PackageName = "local-package4"; PropertyName = "IsInstalled"; PropertyValue = "true" }
 		@{ PackageName = "local-package4"; PropertyName = "InstallDirectory"; PropertyValue = "C:\Users" }
 		@{ PackageName = "local-package4"; PropertyName = "Note"; PropertyValue = "A different description" }
@@ -33,7 +33,7 @@
 		# Get the package pre-modification
 		$oldPackage = Get-PMPackage -PackageName $PackageName
 		
-		# Run the command
+		# Run the command to test
 		Set-PMPackage -PackageName $PackageName -PropertyName $PropertyName -PropertyValue $PropertyValue
 		
 		# Read the written data back in to validate
@@ -53,76 +53,91 @@
 	
 	InModuleScope -ModuleName ProgramManager {
 		
-		# Stop any message outputting to screen
+		# Mock the function to then assert if it was called, i.e. if a message would be printed to screen
 		Mock Write-Message { }
 		
 		It "Given invalid parameter -PackageName <PackageName>" -TestCases @(
 			
 			# The different invalid values for a package name
-			@{ PackageName = "" }
-			@{ PackageName = " " }
-			@{ PackageName = "*" }
-			@{ PackageName = "." }
-			@{ PackageName = ".*" }
-			@{ PackageName = "ajkf32toir930fow" }
-			@{ PackageName = "asdfSAGTWTEGrae4GTQ£TGw" }
+			@{ PackageName = ""; MessageText = "1" }
+			@{ PackageName = " "; MessageText = "1" }
+			@{ PackageName = "*"; MessageText = "2" }
+			@{ PackageName = "."; MessageText = "2" }
+			@{ PackageName = ".*"; MessageText = "2" }
+			@{ PackageName = "ajkf32toir930fow"; MessageText = "2" }
+			@{ PackageName = "asdfSAGTWTEGrae4GTQ£TGw"; MessageText = "2" }
 			
 		) {
 			
 			# Pass test case data into the test body
-			Param ($PackageName)
+			Param ([AllowEmptyString()]$PackageName, $MessageText)
 			
-			# Copy over pre-populated database file from git to check for name clashse as well...
+			# Copy over pre-populated database file from git
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Run the command
+			# Run the command to test
 			Set-PMPackage -PackageName $PackageName -PropertyName "" -PropertyValue ""
+			
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+				
+				"1" { $MessageText = "The package name cannot be empty" }
+				"2" { $MessageText = "There is no package called: $PackageName" }
+				
+			}
 			
 			# Check that the warning message was properly sent
 			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-				$DisplayWarning -eq $true
+				$DisplayWarning -eq $true -and
+				$Message -eq $MessageText
 			}
 			
 			# Delete the database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
-			
 			
 		}
 		
 		It "Given invalid parameter -PropertyName <PropertyName>" -TestCases @(
 			
-			# The different invalid values for a package name
-			@{ PropertyName = "" }
-			@{ PropertyName = "." }
-			@{ PropertyName = "*" }
-			@{ PropertyName = ".*" }
-			@{ PropertyName = "  " }
-			@{ PropertyName = "..." }
-			@{ PropertyName = "asdasfaf3qgesdf" }
-			@{ PropertyName = "6163rqf3^!" }
+			# The different invalid values for a property name on an existing package
+			@{ PropertyName = ""; MessageText = "1" }
+			@{ PropertyName = "."; MessageText = "2" }
+			@{ PropertyName = "*"; MessageText = "2" }
+			@{ PropertyName = ".*"; MessageText = "2" }
+			@{ PropertyName = "  "; MessageText = "1" }
+			@{ PropertyName = "..."; MessageText = "2" }
+			@{ PropertyName = "asdasfaf3qgesdf"; MessageText = "2" }
+			@{ PropertyName = "6163rqf3^!"; MessageText = "2" }
 			
 		) {
 			
 			# Pass test case data into the test body
-			Param ($PropertyName)
+			Param ([AllowEmptyString()]$PropertyName, $MessageText)
 			
 			# Copy over pre-populated database file from git to check for name clashse as well...
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Run the command
+			# Run the command to test
 			Set-PMPackage -PackageName "existing-package" -PropertyName $PropertyName -PropertyValue ""
+			
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+				
+				"1" { $MessageText = "The property name cannot be empty" }
+				"2" { $MessageText = "There is no property called: $PropertyName in package existing-package" }
+				
+			}
 			
 			# Check that the warning message was properly sent
 			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-				$DisplayWarning -eq $true
+				$DisplayWarning -eq $true -and
+				$Message -eq $MessageText
 			}
 			
 			# Delete the database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
 			
-			
 		}
-		
 		
 	}
 	

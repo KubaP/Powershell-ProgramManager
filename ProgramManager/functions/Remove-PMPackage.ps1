@@ -122,7 +122,7 @@
 			}
 			
 			# Check that the path doesn't contain any characters which could cause potential issues
-			if ($Path -like "*.*" -or $Path -like "*``**" -or $Path -like "*.``**") {
+			if ($Path -like "*.*" -or $Path -like "*``**") {
 				
 				Write-Message -Message "The path contains invalid characters" -DisplayWarning
 				return
