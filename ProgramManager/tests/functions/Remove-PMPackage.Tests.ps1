@@ -10,7 +10,7 @@
 	
 	It "Given valid parameters: PackageName <PackageName>; of type <Type> <FileName>; It should correctly remove data and delete files" -TestCases @(
 		
-		# The different valid test cases for a local package (exe and msi)
+		# The different valid test cases for a local/portable/url package
 		@{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.exe" }
 		@{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.msi" }
 		@{ Type = "Portable"; PackageName = "portable-package"; FileName = "PortablePackage_1.3.zip" }
@@ -27,7 +27,7 @@
 		New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
 		Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
 		
-		# Create a package entry so then test the removal of said package
+		# Create a package entry to then test the removal of said package
 		if ($Type -eq "Local") {
 			
 			New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"       
@@ -49,23 +49,27 @@
 		# Read the database back in to ensure the package was added properly
 		$packageList = Import-PackageList
 		$packageList.Count | Should -Be 1
+		
+		# Check that the package files have been correctly moved when adding package
 		if ($Type -eq "Local" -or $Type -eq "Portable") {
-			# Check that the package files haven't been left behind in the original directory
+			
 			Test-Path -Path "TestDrive:\RawPackages\$FileName" | Should -Be $false
+			
 		}
 		
-		# Run the command
+		# Run the command to test
 		Remove-PMPackage -PackageName $PackageName
 		
 		# Read the database back in to validate that the package was removed properly
 		$packageList = Import-PackageList
 		$packageList.Count | Should -Be 0
 		
+		# Check that the package files haven't been left behind in the package store
 		if ($Type -eq "Local" -or $Type -eq "Portable") {
-			# Check that the package files haven't been left behind in the package store
+			
 			Test-Path -Path "$dataPath\packages\$PackageName" | Should -Be $false
+			
 		}
-		
 		
 		# Delete the package store and database file for next test
 		Remove-Item -Path "$dataPath\packageDatabase.xml" -Force -ErrorAction SilentlyContinue
@@ -76,7 +80,7 @@
 	
 	It "Given valid parameters: PackageName <PackageName>; of type <Type> <FileName>; -RetainFiles Path <Path>; It should correctly remove data and move files" -TestCases @(
 		
-		# The different valid test cases for a local package (exe and msi)
+		# The different valid test cases for a local/portable package
 		@{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.exe"; Path = "TestDrive:\moveDir" }
 		@{ Type = "Local"; PackageName = "local-package"; FileName = "localpackage-1.0.msi"; Path = "TestDrive:\moveDir" }
 		@{ Type = "Portable"; PackageName = "protable-package"; FileName = "PortablePackage_1.3.zip"; Path = "TestDrive:\moveDir" }
@@ -93,21 +97,25 @@
 		Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
 		New-Item -ItemType Directory -Path "TestDrive:\moveDir\"
 		
-		# Create a package entry so then test the removal of said package
+		# Create a package entry to then test the removal of said package
 		if ($Type -eq "Local") {
-			New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"          
+			
+			New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"      
+			    
 		}elseif ($Type -eq "Portable") {
-			New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"        
+			
+			New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\"  
+			      
 		}
 		
 		# Read the database back in to ensure the package was added properly
 		$packageList = Import-PackageList
 		$packageList.Count | Should -Be 1
 		
-		# Check that the package files haven't been left behind in the original directory
+		# Check that the package files have been correctly moved when adding package
 		Test-Path -Path "TestDrive:\RawPackages\$FileName" | Should -Be $false
 		
-		# Run the command
+		# Run the command to test
 		Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
 		
 		# Read the database back in to validate that the package was removed properly
@@ -130,76 +138,97 @@
 	
 	InModuleScope -ModuleName ProgramManager {
 		
-		# Stop any message outputting to screen
+		# Mock the function to then assert if it was called, i.e. if a message would be printed to screen
 		Mock Write-Message { }
 		
-		It "Given invalid parameter -PackageName <PackageName>; It should stop and warn" -TestCases @(
+		It "Given invalid parameter -PackageName <PackageName>; It should warn and stop execution" -TestCases @(
 			
-			# The different invalid test cases for a local filepath
-			@{ PackageName = "" }
-			@{ PackageName = " " }
-			@{ PackageName = "." }
-			@{ PackageName = "*" }
-			@{ PackageName = ".*" }
-			@{ PackageName = "asg%346£^ehah$%^47434!*" }
-			@{ PackageName = "..." }
-			@{ PackageName = "***" }
-			@{ PackageName = "     " }
+			# The different invalid test cases for package name which doesn't exist
+			@{ PackageName = ""; MessageText = "1" }
+			@{ PackageName = " "; MessageText = "1" }
+			@{ PackageName = "."; MessageText = "2" }
+			@{ PackageName = "*"; MessageText = "2" }
+			@{ PackageName = ".*"; MessageText = "2" }
+			@{ PackageName = "asg%346£^ehah$%^47434!*"; MessageText = "2" }
+			@{ PackageName = "..."; MessageText = "2" }
+			@{ PackageName = "***"; MessageText = "2" }
+			@{ PackageName = "     "; MessageText = "1" }
 			
 		) {
 			
 			# Pass test case data into the test body
-			Param ([AllowEmptyString()]$PackageName)
+			Param ([AllowEmptyString()]$PackageName, $MessageText)
 			
 			# Copy over pre-populated database file from git to check for name clashes
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Run the command
+			# Run the command to test
 			Remove-PMPackage -PackageName $PackageName 
+			
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+					
+				"1" { $MessageText = "The package name cannot be empty" }
+				"2" { $MessageText = "There is no package called: $PackageName" }
+				
+			}
 			
 			# Check that the warning message was properly sent
 			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-				$DisplayWarning -eq $true
+				$DisplayWarning -eq $true -and
+				$Message -eq $MessageText
 			}
-			
 			
 			# Delete the package store and database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
 			
 		}
 		
-		It "Given invalid parameter -RetainFiles -Path <Path>; On a invalid \packages\ directory; It should stop and error" -TestCases @(
+		It "Given invalid parameter -RetainFiles -Path <Path>; On a invalid \packages\ directory; It should warn/error and stop" -TestCases @(
 			
-			# The different invalid test cases for a local filepath
-			@{ Path = ""; PackageName = "existing-local-package" }
-			@{ Path = " "; PackageName = "existing-local-package" }
-			@{ Path = "*"; PackageName = "existing-local-package" }
-			@{ Path = ".*"; PackageName = "existing-local-package" }
-			@{ Path = "."; PackageName = "existing-local-package" }
-			@{ Path = "asdasd"; PackageName = "existing-local-package" }
+			# The different invalid test cases for an invalid Move-Path on an \packages\ directory which has been corrupted/modified externally
+			@{ Path = ""; PackageName = "existing-local-package"; MessageText = "1" }
+			@{ Path = " "; PackageName = "existing-local-package"; MessageText = "1" }
+			@{ Path = "*"; PackageName = "existing-local-package"; MessageText = "2" }
+			@{ Path = ".*"; PackageName = "existing-local-package"; MessageText = "2" }
+			@{ Path = "."; PackageName = "existing-local-package"; MessageText = "2" }
+			@{ Path = "asdasd"; PackageName = "existing-local-package"; MessageText = "2" }
 			
 		) {
 			
 			# Pass test case data into the test body
-			Param ([AllowEmptyString()]$Path, $PackageName)
+			Param ([AllowEmptyString()]$Path, $PackageName, $MessageText)
 			
 			# Copy over pre-populated database file
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Run the command
+			# Run the command to test
 			Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
 			
-			# Check that the warning message was properly sent
-			if ([System.String]::IsNullOrWhiteSpace($Path) -eq $true) {
-				Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-					$DisplayWarning -eq $true
-				}
-			}else {
-				Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-					$DisplayError -eq $true
-				}
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+					
+				"1" { $MessageText = "The path cannot be empty" }
+				"2" { $MessageText = "There are no files for this package in the package store. This should not happen." }
+				
 			}
 			
+			# Check that the warning/error message was properly sent
+			if ([System.String]::IsNullOrWhiteSpace($Path) -eq $true) {
+				
+				Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+					$DisplayWarning -eq $true -and
+					$Message -eq $MessageText
+				}
+				
+			}else {
+				
+				Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+					$DisplayError -eq $true -and
+					$Message -eq $MessageText
+				}
+				
+			}
 			
 			# Delete the package store and database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
@@ -208,38 +237,47 @@
 		
 		It "Given invalid parameter -RetainFiles -Path <Path>; On a valid \packages\ directory; It should stop and warn" -TestCases @(
 			
-			# The different invalid test cases for a local filepath
-			@{ Path = ""; PackageName = "new-package" }
-			@{ Path = " "; PackageName = "new-package" }
-			@{ Path = "*"; PackageName = "new-package" }
-			@{ Path = ".*"; PackageName = "new-package" }
-			@{ Path = "asdasdas"; PackageName = "new-package" }
-			@{ Path = "**"; PackageName = "new-package" }
-			@{ Path = "."; PackageName = "new-package" }
-			@{ Path = ""; PackageName = "new-package" }
+			# The different invalid test cases for an invalid Move-Path on an \packages\ directory which is fine
+			@{ Path = ""; PackageName = "new-package"; MessageText = "1" }
+			@{ Path = " "; PackageName = "new-package"; MessageText = "1" }
+			@{ Path = "*"; PackageName = "new-package"; MessageText = "3" }
+			@{ Path = ".*"; PackageName = "new-package"; MessageText = "3" }
+			@{ Path = "asdasdas"; PackageName = "new-package"; MessageText = "2" }
+			@{ Path = "**"; PackageName = "new-package"; MessageText = "3" }
+			@{ Path = "."; PackageName = "new-package"; MessageText = "3" }
 			
 		) {
 			
 			# Pass test case data into the test body
-			Param ([AllowEmptyString()]$Path, $PackageName)
+			Param ([AllowEmptyString()]$Path, $PackageName, $MessageText)
 			
 			# Copy the test packages from the git repo to the temporary drive
 			New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
 			Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
+			
 			# Copy over pre-populated database file
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Add the package entry
+			# Add the package entry to test on
 			New-PMPackage -Name $PackageName -LocalPackage "TestDrive:\RawPackages\localpackage-1.0.exe"
 			
-			# Run the command
+			# Run the command to test
 			Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
 			
-			# Check that the warning message was properly sent
-			Assert-MockCalled Write-Message -Times 1 -Scope It -ParameterFilter { # TODO:  -Exactly flag was causing issues; fix
-				$DisplayWarning -eq $true
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+					
+				"1" { $MessageText = "The path cannot be empty" }
+				"2" { $MessageText = "The file path does not exist" }
+				"3" { $MessageText = "The path contains invalid characters" }
+				
 			}
 			
+			# Check that the warning message was properly sent
+			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+				$DisplayWarning -eq $true -and
+				$Message -eq $MessageText
+			}
 			
 			# Delete the package store and database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
@@ -248,12 +286,10 @@
 			
 		}
 		
-		It "Given parameter -RetainFiles -Path <Path>; On a url-package; It should continue and warn" -TestCases @(
+		It "Given parameter -RetainFiles -Path <Path>; On a url-package; It should warn but continue execution" -TestCases @(
 			
-			# The different invalid test cases for a local filepath
+			# The different valid and invalid test cases for a path when handling a url-package, which doesn't store any files
 			@{ Path = "TestDrive:\"; PackageName = "existing-package" }
-			@{ Path = ""; PackageName = "existing-package" }
-			@{ Path = " "; PackageName = "existing-package" }
 			@{ Path = "*"; PackageName = "existing-package" }
 			@{ Path = "."; PackageName = "existing-package" }
 			@{ Path = ".*"; PackageName = "existing-package" }
@@ -267,14 +303,14 @@
 			# Copy over pre-populated database file
 			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
 			
-			# Run the command
+			# Run the command to test
 			Remove-PMPackage -PackageName $PackageName -RetainFiles -Path $Path
 			
 			# Check that the warning message was properly sent
 			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-				$DisplayWarning -eq $true
+				$DisplayWarning -eq $true -and
+				$Message -eq "The flag -RetainFiles has no effect on a url package"
 			}
-			
 			
 			# Delete the package store and database file for next test
 			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force

@@ -12,64 +12,72 @@
 		
 		InModuleScope -ModuleName ProgramManager {
 			
+			# Mock the functions to then assert if they were called, i.e. if a scriptblock would be executed or an installer would be started
 			Mock Invoke-Command { }
 			Mock Start-Process { }
 			
 			It "Given valid parameter -PackageName <PackageName>; It should correctly install package" -TestCases @(
 				
 				# The different valid test cases for a local package (exe and msi)
-				@{ PackageName = "local-exe-none"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScript = {}; PostInstallScript = {} }
-				@{ PackageName = "local-exe-pre"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {} }
-				@{ PackageName = "local-exe-post"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello world"} }
-				@{ PackageName = "local-exe-both"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {Write-Host "hello world"} }
+				@{ PackageName = "local-exe-none"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-exe-pre"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-exe-post"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"} }
+				@{ PackageName = "local-exe-all"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"} }
 				
-				@{ PackageName = "local-msi-none"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScript = {}; PostInstallScript = {} }
-				@{ PackageName = "local-msi-pre"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {} }
-				@{ PackageName = "local-msi-post"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello world"} }
-				@{ PackageName = "local-msi-both"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {Write-Host "hello world"} }
+				@{ PackageName = "local-msi-none"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-msi-pre"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-msi-post"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"} }
+				@{ PackageName = "local-msi-all"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"} }
 				
 			) {
 				
 				# Pass test case data into the test body
-				Param ($PackageName, $Type, $FileName, $PreInstallScript, $PostInstallScript)
-				
+				Param ($PackageName, $Type, $FileName, $PreInstallScriptblock, $PostInstallScriptblock)
 				
 				# Copy the test packages from the git repo to the temporary drive
 				New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
 				Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
 				
-				# Create the package first
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+				# Create the package first to test on
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PreInstallScriptblock $PreInstallScript
+					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PreInstallScriptblock $PreInstallScriptblock -PostInstallScriptblock $PostInstallScriptblock
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PostInstallScriptblock $PostInstallScript
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
 					
-				}else { 
+					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PreInstallScriptblock $PreInstallScriptblock
+					
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {
+					
+					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName" -PostInstallScriptblock $PostInstallScriptblock
+					
+				}else {
+					
 					New-PMPackage -Name $PackageName -LocalPackage -PackageLocation "TestDrive:\RawPackages\$FileName"
 					
 				}
 				
-				# Run the command
+				# Run the command to test
 				Invoke-PMInstall -PackageName $PackageName
 				
 				# Get the package object
 				$package = Get-PMPackage -PackageName $PackageName
 				
 				# Check that the scriptblocks have been called correctly
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 2 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 					
 				}else {
+					
 					Assert-MockCalled Invoke-Command -Times 0 -Exactly -Scope It
 					
 				}
@@ -80,7 +88,6 @@
 				# Check that the package install status was updated
 				$package.IsInstalled | Should -Be $true
 				
-				
 				# Delete the package store and database file for next test
 				Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
 				Remove-Item -Path "$dataPath\packages\" -Recurse -Force
@@ -89,7 +96,6 @@
 			}
 			
 		}
-		
 		
 	}
 	<#
@@ -111,17 +117,17 @@
 			) {
 				
 				# Pass test case data into the test body
-				Param ($PackageName, $Url, $PreInstallScript, $PostInstallScript)
+				Param ($PackageName, $Url, $PreInstallScriptblock, $PostInstallScriptblock)
 				
 				# Create the package first
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {                    
-					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {                    
+					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PreInstallScriptblock $PreInstallScriptblock -PostInstallScriptblock $PostInstallScriptblock
 				
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {                
-					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PreInstallScriptblock $PreInstallScript
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {                
+					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PreInstallScriptblock $PreInstallScriptblock
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {                
-					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PostInstallScriptblock $PostInstallScript
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {                
+					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url -PostInstallScriptblock $PostInstallScriptblock
 				
 				}else {                
 					New-PMPackage -Name $PackageName -UrlPackage -PackageLocation $Url
@@ -135,13 +141,13 @@
 				$package = Get-PMPackage -PackageName $PackageName
 				
 				# Check that the scriptblocks have been called correctly
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {                    
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {                    
 					Assert-MockCalled Invoke-Command -Times 2 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {                
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {                
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {                
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {                
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 				
 				}else {
@@ -170,118 +176,133 @@
 		
 		InModuleScope -ModuleName ProgramManager {
 			
+			# Mock the functions to then assert if they were called, i.e. if a scriptblock would be executed or an installer would be started
 			Mock Invoke-Command { }
-			# Stop any message outputting to screen
 			Mock Write-Message { }
 			
 			It "Given valid parameter -PackageName <PackageName>; It should correctly install package" -TestCases @(
 				
 				# The different valid test cases for a portable package (exe, folder, and zip)
-				@{ PackageName = "portable-exe-none"; FileName = "portablepackage-1.0.exe"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {}}
-				@{ PackageName = "portable-exe-pre"; FileName = "portablepackage-1.0.exe"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {}}
-				@{ PackageName = "portable-exe-post"; FileName = "portablepackage-1.0.exe"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello world"}}
-				@{ PackageName = "portable-exe-both"; FileName = "portablepackage-1.0.exe"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {Write-Host "hello world"}}
+				@{ PackageName = "portable-exe-none"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-exe-pre"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-exe-post"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"}}
+				@{ PackageName = "portable-exe-all"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"}}
 				
-				@{ PackageName = "portable-zip-none"; FileName = "PortablePackage_1.3.zip"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {}}
-				@{ PackageName = "portable-zip-pre"; FileName = "PortablePackage_1.3.zip"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {}}
-				@{ PackageName = "portable-zip-post"; FileName = "PortablePackage_1.3.zip"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello world"}}
-				@{ PackageName = "portable-zip-both"; FileName = "PortablePackage_1.3.zip"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {Write-Host "hello world"}}
+				@{ PackageName = "portable-zip-none"; FileName = "PortablePackage_1.3.zip"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-zip-pre"; FileName = "PortablePackage_1.3.zip"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-zip-post"; FileName = "PortablePackage_1.3.zip"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"}}
+				@{ PackageName = "portable-zip-all"; FileName = "PortablePackage_1.3.zip"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"}}
 				
-				@{ PackageName = "portable-folder-none"; FileName = "PortablePackage_1.0"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {}}
-				@{ PackageName = "portable-folder-pre"; FileName = "PortablePackage_1.0"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {}}
-				@{ PackageName = "portable-folder-post"; FileName = "PortablePackage_1.0"; InstallDir = "\dir\"; PreInstallScript = {}; PostInstallScript = {Write-Host "hello world"}}
-				@{ PackageName = "portable-folder-both"; FileName = "PortablePackage_1.0"; InstallDir = "\dir\"; PreInstallScript = {Write-Host "hello world"}; PostInstallScript = {Write-Host "hello world"}}
-				
+				@{ PackageName = "portable-folder-none"; FileName = "PortablePackage_1.0"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-folder-pre"; FileName = "PortablePackage_1.0"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {}}
+				@{ PackageName = "portable-folder-post"; FileName = "PortablePackage_1.0"; InstallDirectory = "\dir\"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"}}
+				@{ PackageName = "portable-folder-all"; FileName = "PortablePackage_1.0"; InstallDirectory = "\dir\"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"}}
 				
 			) {
 				
 				# Pass test case data into the test body
-				Param ($PackageName, $Type, $FileName, $InstallDir, $PreInstallScript, $PostInstallScript)
+				Param ($PackageName, $Type, $FileName, $InstallDirectory, $PreInstallScriptblock, $PostInstallScriptblock)
 				
 				# Copy the test packages from the git repo to the temporary drive
 				New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
-				New-Item -ItemType Directory -Path "TestDrive:\$InstallDir"
+				New-Item -ItemType Directory -Path "TestDrive:\$InstallDirectory"
 				Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
 				
-				# Create the package first
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir" -PreInstallScriptblock $PreInstallScript -PostInstallScriptblock $PostInstallScript
+				# Create the package first to test on
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir" -PreInstallScriptblock $PreInstallScript
+					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDirectory" -PreInstallScriptblock $PreInstallScriptblock -PostInstallScriptblock $PostInstallScriptblock
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
-					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir" -PostInstallScriptblock $PostInstallScript
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
+					
+					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDirectory" -PreInstallScriptblock $PreInstallScriptblock
+					
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {
+					
+					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDirectory" -PostInstallScriptblock $PostInstallScriptblock
 					
 				}else {
-					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir"
+					
+					New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDirectory"
 					
 				}
 				
-				# Run the command
+				# Run the command to test
 				Invoke-PMInstall -PackageName $PackageName
 				
 				# Get the package object
 				$package = Get-PMPackage -PackageName $PackageName
 				
 				# Check that the scriptblocks have been called correctly
-				if ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+				if ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false -and [System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 2 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScript.ToString()) -eq $false) {
+				}elseif ([System.String]::IsNullOrWhiteSpace($PreInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 					
-				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScript.ToString()) -eq $false) {
+				}elseif ([System.String]::IsNullOrWhiteSpace($PostInstallScriptblock.ToString()) -eq $false) {
+					
 					Assert-MockCalled Invoke-Command -Times 1 -Exactly -Scope It
 					
 				}else {
+					
 					Assert-MockCalled Invoke-Command -Times 0 -Exactly -Scope It
 					
 				}
 				
 				# Check that the package has been copied correctly
-				Test-Path -Path "TestDrive:\$InstallDir\$($package.Name)\" | Should -Be $true
+				Test-Path -Path "TestDrive:\$InstallDirectory\$($package.Name)\" | Should -Be $true
 				
 				# Check that the package install status was updated
 				$package.IsInstalled | Should -Be $true
-				
 				
 				# Delete the package store and database file for next test
 				Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
 				Remove-Item -Path "$dataPath\packages\" -Recurse -Force
 				Remove-Item -Path "TestDrive:\RawPackages\" -Recurse -Force
-				Remove-Item -Path "TestDrive:\$InstallDir\" -Recurse -Force
+				Remove-Item -Path "TestDrive:\$InstallDirectory\" -Recurse -Force
 				
 			}
 			
-			It "Given valid parameter -PackageName <PackageName>; with invalid InstallDirectory; It should stop and warn" -TestCases @(
+			It "Given valid parameter -PackageName <PackageName>; with invalid InstallDirectory; It should warn and stop execution" -TestCases @(
 				
 				# The different invalid test cases for a portable package install directory
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = ".*" }
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "*" }
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "**" }
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "..." }
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "£%afasdfasdf£" }
-				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDir = "\non-existent-folder\" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = ".*"; MessageText = "2" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "*"; MessageText = "2" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "**"; MessageText = "2" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "..."; MessageText = "2" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "£%afasdfasdf£"; MessageText = "1" }
+				@{ PackageName = "portable-exe"; FileName = "portablepackage-1.0.exe"; InstallDirectory = "\non-existent-folder\"; MessageText = "1" }
 				
 			) {
 				
 				# Pass test case data into the test body
-				Param ($PackageName, $FileName, $InstallDir)
+				Param ($PackageName, $FileName, $InstallDirectory, $MessageText)
 				
 				# Copy the test packages from the git repo to the temporary drive
 				New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"
 				Copy-Item -Path "$PSScriptRoot\..\files\packages\*" -Destination "TestDrive:\RawPackages\"
 				
-				# Create the package first
-				New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDir"
+				# Create the package first to test on
+				New-PMPackage -Name $PackageName -PortablePackage -PackageLocation "TestDrive:\RawPackages\$FileName" -InstallDirectory "TestDrive:\$InstallDirectory"
 				
-				# Run the command
+				# Run the command to test
 				Invoke-PMInstall -PackageName $PackageName
+				
+				# Get the correct warning message that should be displayed in each test case
+				switch ($MessageText) {
+					
+					"1" { $MessageText = "The install directory doesn't exist: TestDrive:\$InstallDirectory" }
+					"2" { $MessageText = "The package install directory contains invalid characters" }
+					
+				}
 				
 				# Check that the warning message was properly sent
 				Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-					$DisplayWarning -eq $true
+					$DisplayWarning -eq $true -and
+					$Message -eq $MessageText
 				}
 				
 				# Delete the package store and database file for next test
@@ -297,10 +318,53 @@
 	
 	InModuleScope -ModuleName ProgramManager {
 			
-		# Stop any message outputting to screen
+		# Mock the function to then assert if it was called, i.e. if a message would be printed to screen
 		Mock Write-Message { }
 		
-		It "Given invalid parameter -PackageName <PackageName>" -TestCases @(
+		It "Given invalid parameter -PackageName <PackageName>; It should warn and stop execution" -TestCases @(
+			
+			# The different valid test cases for a packagename
+			@{ PackageName = ""; Message = "1" }
+			@{ PackageName = " "; Message = "1" }
+			@{ PackageName = "*"; Message = "2" }
+			@{ PackageName = "."; Message = "2" }
+			@{ PackageName = ".*"; Message = "2" }
+			@{ PackageName = "asdasdagfsag"; Message = "2" }
+			@{ PackageName = "afhSDGj%^^7RHDFGH"; Message = "2" }
+			@{ PackageName = "..."; Message = "2" }
+			@{ PackageName = "   "; Message = "1" }
+			
+		) {
+			
+			# Pass test case data into the test body
+			Param ([AllowEmptyString()]$PackageName, $MessageText)
+			
+			# Copy over pre-populated database file from git
+			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
+			
+			# Run the command to test
+			Invoke-PMInstall -PackageName $PackageName
+			
+			# Get the correct warning message that should be displayed in each test case
+			switch ($MessageText) {
+					
+				"1" { $MessageText = "The name cannot be empty" }
+				"2" { $MessageText = "There is no package called: $PackageName" }
+				
+			}
+			
+			# Check that the warning message was properly sent
+			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
+				$DisplayWarning -eq $true -and
+				$Message -eq $MessageText
+			}
+			
+			# Delete the database file for next test
+			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
+			
+		}
+		
+		It "Given no database file present; It should warn and stop execution" -TestCases @(
 			
 			# The different valid test cases for a packagename
 			@{ PackageName = "" }
@@ -318,22 +382,17 @@
 			# Pass test case data into the test body
 			Param ($PackageName)
 			
-			# Copy over pre-populated database file from git to check for name clashse as well...
-			Copy-Item -Path "$PSScriptRoot\..\files\data\existingPackage-packageDatabase.xml" -Destination "$dataPath\packageDatabase.xml"
-			
-			# Run the command
+			# Run the command to test
 			Invoke-PMInstall -PackageName $PackageName
 			
 			# Check that the warning message was properly sent
 			Assert-MockCalled Write-Message -Times 1 -Exactly -Scope It -ParameterFilter {
-				$DisplayWarning -eq $true
+				$DisplayWarning -eq $true -and
+				$Message -eq "The database file doesn't exist. Run New-PMPackage to initialise it."
 			}
-			
-			# Delete the database file for next test
-			Remove-Item -Path "$dataPath\packageDatabase.xml" -Force
 			
 		}
 		
-	}  
+	}
 	
 }

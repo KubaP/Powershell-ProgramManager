@@ -3,7 +3,7 @@
 	RootModule = 'ProgramManager.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '0.1.1'
+	ModuleVersion = '0.1.2'
 	
 	# ID used to uniquely identify this module
 	GUID = '7572858c-6870-4911-bd85-5b4aef2427b6'
@@ -45,7 +45,8 @@
 		'Get-PMPackage',
 		'Set-PMPackage',
 		'Remove-PMPackage',
-		'Invoke-PMInstall'
+		'Invoke-PMInstall',
+		'Invoke-PMUninstall'
 	)
 	
 	# Cmdlets to export from this module
@@ -82,7 +83,7 @@
 			# IconUri = ''
 			
 			# ReleaseNotes of this module
-			# ReleaseNotes = ''
+			ReleaseNotes = 'https://github.com/KubaP/Powershell-ProgramManager/blob/master/ProgramManager/changelog.md'
 			
 		} # End of PSData hashtable
 		
