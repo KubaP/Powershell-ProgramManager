@@ -10,7 +10,7 @@
 		It "Given valid parameters: Message '<MessageText>' and flag -<Type>; It should correct write message to correct stream" -TestCases @(
 			
 			# The different valid messages and flags
-			@{ MessageText = "Test message"; Type = "DisplayText" }
+			#@{ MessageText = "Test message"; Type = "DisplayText" }
 			@{ MessageText = "Test message"; Type = "DisplayWarning" }
 			@{ MessageText = "Test message"; Type = "DisplayError" }
 			

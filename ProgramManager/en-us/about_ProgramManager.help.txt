@@ -146,8 +146,37 @@ INSTALLING A PACKAGE
 		-Verbose
 
 
+UNINSTALLING A PACKAGE
+	To uninstall a package:
+	
+		Invoke-PMUninstall -PackageName "<name>"
+		
+	This will uninstall the package. It will run any uninstallation scriptblocks
+	if the package has any.
+	-PackageName supports passing an array of names, to uninstall multiple packages with
+	one command.
+	
+	For a Local Package, this command will open the Programs & Features page of the Control Panel.*
+	For a Url Package, this command will open the Programs & Features page of the Control Panel.*
+	For a Portable Package, this command will delete the files from install directory.
+	
+		* Due to the limitation in windows, it is not possible to start the uninstaller executable,
+		  as there is no way of locating the file with 100% certainty; therefore the control panel is
+		  started for user convenience. If you do not run this command to uninstall a package, remember
+		  to set its .IsInstalled flag to $false.
+	
+	
+	OPTIONAL PARAMETERS
+	
+	<CommonParameters>
+		
+		-WhatIf
+		-Confirm
+		-Verbose
+
+
 SCRIPTBLOCKS
-	When running New-PMPackage, you can pass in -PreInstallScriptblock and/or -PostInstallScriptblock.
+	When running New-PMPackage, you can pass in -PreInstallScriptblock/-PostInstallScriptblock/-UninstallScriptblock.
 	
 	For details, see: about_ProgramManager_scriptblocks
 	

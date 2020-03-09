@@ -161,10 +161,12 @@ if ($SkipArtifact -eq $false) {
 	
 	$moduleVersion = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\ProgramManager\ProgramManager.psd1").ModuleVersion
 	# Move the module contents to the desired folder structure
-	New-Item -ItemType Directory -Path "$($publishDir.FullName)\ProgramManager" -Name "$moduleVersion"
-	Move-Item -Path "$($publishDir.FullName)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\$moduleVersion" -Exclude "*$moduleVersion"
+	New-Item -ItemType Directory -Path "$($publishDir.FullName)\ProgramManager\" -Name "$moduleVersion" -Force
+	Move-Item -Path "$($publishDir.FullName)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\$moduleVersion\" -Exclude "*$moduleVersion*" -Force
 	
 	# Create a packaged zip file
 	Compress-Archive -Path "$($publishDir.FullName)\ProgramManager" -DestinationPath "$($publishDir.FullName)\ProgramManager-v$($moduleVersion).zip"
 	
+	# Write the module number as a azure pipeline variable for publish task
+	Write-Host "##vso[task.setvariable variable=version;isOutput=true]$moduleVersion"
 }

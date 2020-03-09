@@ -12,6 +12,9 @@ SCRIPTBLOCK OVERVIEW
 	The Post-InstallScriptblock runs after the main installation logic is executed.
 	This will be after any package is copied/installer finishes and exits.
 	
+	The UninstallScriptblock runs before the main uninstallation logic is executed.
+	This will be before the control panel is opened/files are deleted.
+	
 	You can run any arbitrary code within these scriptblocks. There is no limit to what
 	you can do. Bear in mind that complex scripts will increase execution time.
 	
@@ -21,13 +24,14 @@ SCRIPTBLOCK OVERVIEW
 			folder containing the data in a different location.
 		- Create a shortcut for a portable program and place it in the Start Menu.
 		- Copy over data files to a hardcoded folder which can't be symlinked.
+		- Delete left-over shortcuts after uninstallation.
 	
 SCRIPTBLOCK SETUP
 	To utilise the full potential of the scriptblocks, you can manipulate data passed
-	in from the Invoke-PMInstall command.
+	in from the Invoke-PMInstall and Invoke-PMUninstall commands.
 	
 	Whilst you can receive package data, any changes you do will be lost, as the object
-	is never returned back to the main Invoke-PMInstall function.
+	is never returned back to the main functions.
 	
 	
 	Include this parameter definition in the scriptblock to get the ProgramManager.Package object:
@@ -54,8 +58,8 @@ SCRIPTBLOCK EXAMPLE
 		
 	)
 	
-	Remove-Item -Path "%appdata%\Code\User" -Recurse -Force -ErrorAction SilentlyContinue
-	New-Item -ItemType SymbolicLink -Path "%appdata%\Code\User" -Value "D:\Programs\Data\VSCode"
+		Remove-Item -Path "%appdata%\Code\User" -Recurse -Force -ErrorAction SilentlyContinue
+		New-Item -ItemType SymbolicLink -Path "%appdata%\Code\User" -Value "D:\Programs\Data\VSCode"
 	
 	}
 	

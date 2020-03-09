@@ -125,9 +125,13 @@
 				
 			}
 			
-			# Delete the package files
-			Write-Verbose "Deleting package files"
-			Remove-Item -Path "$($package.InstallDirectory)\$($package.Name)" -Recurse -Force
+			if ($PSCmdlet.ShouldProcess("Package:{$name} files", "Delete from the installation directory")) {
+				
+				# Delete the package files
+				Write-Verbose "Deleting package files"
+				Remove-Item -Path "$($package.InstallDirectory)\$($package.Name)" -Recurse -Force
+				
+			}
 			
 		}elseif ($package.Type -eq "ChocolateyPackage") {
 			
