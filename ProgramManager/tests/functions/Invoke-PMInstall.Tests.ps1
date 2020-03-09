@@ -19,21 +19,20 @@
 			It "Given valid parameter -PackageName <PackageName>; It should correctly install package" -TestCases @(
 				
 				# The different valid test cases for a local package (exe and msi)
-				@{ PackageName = "local-exe-none"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {}; UninstallScriptblock = {} }
-				@{ PackageName = "local-exe-pre"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {}; UninstallScriptblock = {} }
-				@{ PackageName = "local-exe-post"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"}; UninstallScriptblock = {} }
-				@{ PackageName = "local-exe-all"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"}; UninstallScriptblock = {} }
+				@{ PackageName = "local-exe-none"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-exe-pre"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-exe-post"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"} }
+				@{ PackageName = "local-exe-all"; Type = "exe"; FileName = "localpackage-1.0.exe"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"} }
 				
-				@{ PackageName = "local-msi-none"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {}; UninstallScriptblock = {} }
-				@{ PackageName = "local-msi-pre"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {}; UninstallScriptblock = {} }
-				@{ PackageName = "local-msi-post"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"}; UninstallScriptblock = {} }
-				@{ PackageName = "local-msi-all"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"}; UninstallScriptblock = {} }
+				@{ PackageName = "local-msi-none"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-msi-pre"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {} }
+				@{ PackageName = "local-msi-post"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {}; PostInstallScriptblock = {Write-Host "hello world"} }
+				@{ PackageName = "local-msi-all"; Type = "msi"; FileName = "localpackage-1.0.msi"; PreInstallScriptblock = {Write-Host "hello world"}; PostInstallScriptblock = {Write-Host "hello world"} }
 				
 			) {
 				
 				# Pass test case data into the test body
-				Param ($PackageName, $Type, $FileName, $PreInstallScriptblock, $PostInstallScriptblock, $UninstallScriptblock)
-				
+				Param ($PackageName, $Type, $FileName, $PreInstallScriptblock, $PostInstallScriptblock)
 				
 				# Copy the test packages from the git repo to the temporary drive
 				New-Item -ItemType Directory -Path "TestDrive:\RawPackages\"

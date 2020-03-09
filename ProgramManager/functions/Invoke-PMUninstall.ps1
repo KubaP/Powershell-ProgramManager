@@ -120,7 +120,7 @@
 			# Check whether the folder the package was installed to actually exists
 			if ((Test-Path -Path "$($package.InstallDirectory)\$($package.Name)") -eq $false) {
 				
-				Write-Message "Can't find the package at the expected directory. Was the package folder renamed?" -DisplayWarning
+				Write-Message -Message "Can't find the package at the expected directory. Was the package folder renamed?" -DisplayWarning
 				return
 				
 			}
