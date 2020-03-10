@@ -1,11 +1,8 @@
-﻿# The modules which are required for testing
-$modules = @("Pester", "PSScriptAnalyzer")
+﻿# Install each module
+Write-Host "Installing Pester" -ForegroundColor Cyan
+Install-Module "Pester" -Force -SkipPublisherCheck -Verbose
+Import-Module "Pester" -Force -PassThru -Verbose
 
-# Install each module
-foreach ($module in $modules) {
-    
-    Write-Host "Installing $module" -ForegroundColor Cyan
-    Install-Module $module -Force -SkipPublisherCheck
-    Import-Module $module -Force -PassThru
-    
-}
+Write-Host "Installing PSScriptAnalyzer" -ForegroundColor Cyan
+Install-Module "PSScriptAnalyzer" -Force -SkipPublisherCheck -Verbose
+Import-Module "PSScriptAnalyzer" -Force -PassThru -Verbose

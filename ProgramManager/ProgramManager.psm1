@@ -14,6 +14,7 @@ if ((Test-Path -Path $script:DataPath) -eq $false) {
 
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = $global:ModuleDebugDotSource
+$script:doDotSource = $true # Needed to make code coverage tests work
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
 $importIndividualFiles = $global:ModuleDebugIndividualFiles
 
