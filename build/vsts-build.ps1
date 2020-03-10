@@ -36,6 +36,7 @@ if (-not $WorkingDirectory) {
 #=======================
 # Install modules
 Install-Module "PowershellGet" -SkipPublisherCheck -Force -RequiredVersion "2.2.2" -Verbose
+Remove-Module "PowershellGet" -Force
 Import-Module "PowershellGet" -RequiredVersion "2.2.2" -Force -Verbose
 
 #=======================
