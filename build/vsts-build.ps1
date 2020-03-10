@@ -34,6 +34,11 @@ if (-not $WorkingDirectory) {
 }
 
 #=======================
+# Install modules
+Install-Module "PowershellGet" -SkipPublisherCheck -Force -RequiredVersion "2.2.2" -Verbose
+Import-Module "PowershellGet" -RequiredVersion "2.2.2" -Force -Verbose
+
+#=======================
 # Prepare publish folder
 Write-Host "Creating and populating publishing directory"
 Remove-Item -Path "$WorkingDirectory\publish" -Force -Recurse -ErrorAction SilentlyContinue
@@ -131,25 +136,25 @@ if ($SkipPublish -eq $false) {
 		Write-Host "Publishing the ProgramManager module to TEST PSGallery"
 		
 		# Register testing repository
-		Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted
-		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo"
+		Register-PSRepository -Name "test-repo" -SourceLocation "https://www.poshtestgallery.com/api/v2" -PublishLocation "https://www.poshtestgallery.com/api/v2/package" -InstallationPolicy Trusted -Verbose
+		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository "test-repo" -Verbose
 		
 		Write-Host "Published package to test repo. Waiting 30 seconds."
 		Start-Sleep -Seconds 30
 		
 		# Uninstall module if it already exists, to then install the test-module
-		Uninstall-Module -Name "ProgramManager" -Force
-		Install-Module -Name "ProgramManager" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck
+		Uninstall-Module -Name "ProgramManager" -Force -Verbose
+		Install-Module -Name "ProgramManager" -Repository "test-repo" -Force -AcceptLicense -SkipPublisherCheck -Verbose
 		Write-Host "Test ProgramManager module installed"
 		
 		# Remove the testing repository
-		Unregister-PSRepository -Name "test-repo"
+		Unregister-PSRepository -Name "test-repo" -Verbose
 		
 	}else {
 		
 		# Publish to PSGallery
 		Write-Host "Publishing the ProgramManager module to $($Repository)"
-		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository $Repository
+		Publish-Module -Path "$($publishDir.FullName)\ProgramManager" -NuGetApiKey $ApiKey -Force -Repository $Repository -Verbose
 		
 	}
 
@@ -162,10 +167,10 @@ if ($SkipArtifact -eq $false) {
 	$moduleVersion = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\ProgramManager\ProgramManager.psd1").ModuleVersion
 	# Move the module contents to the desired folder structure
 	New-Item -ItemType Directory -Path "$($publishDir.FullName)\ProgramManager\" -Name "$moduleVersion" -Force
-	Move-Item -Path "$($publishDir.FullName)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\$moduleVersion\" -Exclude "*$moduleVersion*" -Force
+	Move-Item -Path "$($publishDir.FullName)\ProgramManager\*" -Destination "$($publishDir.FullName)\ProgramManager\$moduleVersion\" -Exclude "*$moduleVersion*" -Force -Verbose
 	
 	# Create a packaged zip file
-	Compress-Archive -Path "$($publishDir.FullName)\ProgramManager" -DestinationPath "$($publishDir.FullName)\ProgramManager-v$($moduleVersion).zip"
+	Compress-Archive -Path "$($publishDir.FullName)\ProgramManager" -DestinationPath "$($publishDir.FullName)\ProgramManager-v$($moduleVersion).zip" -Verbose
 	
 	# Write the module number as a azure pipeline variable for publish task
 	Write-Host "##vso[task.setvariable variable=version;isOutput=true]$moduleVersion"

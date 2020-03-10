@@ -23,8 +23,8 @@ Write-Host "Starting Tests"
 # Remove and re-import the module
 Write-Host "Importing Module"
 Remove-Module ProgramManager -ErrorAction Ignore
-Import-Module "$PSScriptRoot\..\ProgramManager.psd1"
-Import-Module "$PSScriptRoot\..\ProgramManager.psm1" -Force
+Import-Module "$PSScriptRoot\..\ProgramManager.psd1" -Verbose
+Import-Module "$PSScriptRoot\..\ProgramManager.psm1" -Force -Verbose
 
 # Create the test results directory
 Write-Host "Creating test result folder"
