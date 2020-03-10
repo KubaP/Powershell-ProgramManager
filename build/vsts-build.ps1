@@ -32,12 +32,10 @@ if (-not $WorkingDirectory) {
 	}
 	else { $WorkingDirectory = $env:SYSTEM_DEFAULTWORKINGDIRECTORY }
 }
-
 #=======================
-# Install modules
-Install-Module "PowershellGet" -SkipPublisherCheck -Force -RequiredVersion "2.2.2" -Verbose
-Remove-Module "PowershellGet" -Force
-Import-Module "PowershellGet" -RequiredVersion "2.2.2" -Force -Verbose
+# Import modules
+Import-Module "PowershellGet" -RequiredVersion "2.2.2" -Verbose
+Get-Module -Verbose
 
 #=======================
 # Prepare publish folder
