@@ -1,11 +1,17 @@
 # ProgramManager
-ProgramManager is a powershell module which mimicks some of the features of standard package managers, but is designed for traditional windows installation files. This module allows you to easily add, keep track off, install, and uninstall programs with only a handful of simple-to-use commands. This module works on programs which are:
+**⚠ This project has been archived.**
+
+*There will be no more feature updates nor bug fixes. Whilst the module should work fine, it's provided on an as-is basis and no guarantees are made for its stability. Feel free to fork this repository and make your own changes. In the future I may come round to re-writing this module more properly. There is an official windows package manager now, called `WinGet`, and whilst it doesn't have many features, it is officially supported and maintained.*
+
+<hr>
+
+ProgramManager is a powershell module which mimics some of the features of standard package managers, but is designed for traditional windows installation files. This module allows you to easily add, keep track off, install, and uninstall programs with only a handful of simple-to-use commands. This module works on programs which are:
 - .exe/.msi installers located locally
 - .exe/.msi installers downloaded from a url
-- portable programs, either as a standolone .exe's or as folders
-- *~~chocolatey packages~~ [TODO]*
+- portable programs, either as a standalone .exe's or as folders
+- *~~chocolatey packages [TODO]~~*
 
-This module is primarily aimed at someone who wants to easily add new software to a "package manager", but doesn't want to deal with the complexity of creating their own local packages for solutions like chocolatey,nuget, etc.
+This module is primarily aimed at someone who wants to easily add new software to a "package manager", but doesn't want to deal with the complexity of creating their own local packages for solutions like chocolatey, nuget, etc.
 
 <br>
 
@@ -27,7 +33,7 @@ Import-Module ProgramManager
 ```
 
 ### Requirements
-This module requires `powershell 5.1` minimum. Works with `powershell core` as well.
+This module requires `Powershell 5.1` minimum. Works with `pwsh 6+` as well.
 
 This module only works on **Windows**, since it's designed around windows-based executables/programs.
 
@@ -56,7 +62,7 @@ When adding a portable program, `-PackageLocation` can point to either a:
 
 <br>
 
-When adding a new package to the database, the package files (if located locally) are moved to a storage location and kept there untill the package is removed. These files are stored at `<!path>`. It is **highly** recommended to not directly modify anything within this directory.
+When adding a new package to the database, the package files (if located locally) are moved to a storage location and kept there until the package is removed. These files are stored at `%APPDATA%\Powershell\ProgramManager`. It is **highly** recommended to not directly modify anything within this directory.
 
 ### Installing a package
 To install a package, run this command:
@@ -115,13 +121,13 @@ When adding a new package, you can pass in a scriptblock for `-PreInstallScriptb
 For details, see `about_ProgramManager_scriptblocks`.
 
 #### -WhatIf and -Confirm support
-All functions in this module support these parameters when appropiate.
+All functions in this module support these parameters when appropriate.
 
 Use `-WhatIf` to see what changes a function will do.
 Use `-Confirm` to require a prompt for every major change.
 
 ## Build Instructions
-### Prerequesites
+### Prerequisites
 Install the following:
 - Powershell Core 6.2.1
 - Pester 4.9.0
@@ -137,20 +143,23 @@ git clone https://github.com/KubaP/Powershell-ProgramManager.git
 Run the following commands in this order:
 ```powershell
 & .\build\vsts-prerequisites.ps1
-& .\build\vsts-valiate.ps1
+& .\build\vsts-validate.ps1
 & .\build\vsts-build.ps1 -WorkingDirectory .\ -SkipPublish
 ```
 The built module will be located in the `.\publish` folder.
 
 ## Support
-If there is a bug/issue please file it on the github issue tracker.
+~~If there is a bug/issue please file it on the github issue tracker.~~
+
+⚠ The project is archived, and the module is provided as-is.
 
 ## Contributing
-Feel free to make pull requests if you have an improvement. Only submit a single feature at a time, and make sure that the code is cleanly formatted, readable, and well commented.
+~~Feel free to make pull requests if you have an improvement. Only submit a single feature at a time, and make sure that the code is cleanly formatted, readable, and well commented.~~
+
+⚠ The project is archived, and isn't open for pull requests anymore.
 
 ## License 
 This project is licensed under the MIT license - see [LICENSE.md](./LICENSE) file for details.
 
-
 ## Acknowledgements
-The module framework has been based of the [psframework](https://github.com/PowershellFrameworkCollective/psframework) module template.
+The module framework has been based off the [psframework](https://github.com/PowershellFrameworkCollective/psframework) module template.
